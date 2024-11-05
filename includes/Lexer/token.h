@@ -3,6 +3,7 @@
 
 typedef enum e_token_type
 {
+	TOKEN_TYPE_EOF,
 	TOKEN_TYPE_PLUS,
 	TOKEN_TYPE_MINUS,
 	TOKEN_TYPE_STAR,

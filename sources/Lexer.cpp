@@ -1,6 +1,6 @@
-#include <Lexer.hpp>
-#include <Logger.hpp>
-#include <messages.h>
+#include "../includes/Lexer/Lexer.hpp"
+#include "../includes/Logger.hpp"
+#include "../includes/messages.h"
 
 #include <fstream>
 
@@ -30,7 +30,8 @@ bool Lexer::getNextToken()
 
 	if (this->m_currentIndex >= this->m_inputFileContent.size())
 	{
-		return false;
+		this->m_token.type = TOKEN_TYPE_EOF;
+		return true;
 	}
 
 	char currentChar = this->m_inputFileContent[this->m_currentIndex];

@@ -1,7 +1,7 @@
-#include <Lexer.hpp>
-#include <Logger.hpp>
+#include "../includes/Lexer/Lexer.hpp"
+#include "../includes/Logger.hpp"
+#include "../includes/messages.h"
 
-#include <messages.h>
 #include <sstream>
 
 int main(int ac, char **av)
@@ -22,10 +22,15 @@ int main(int ac, char **av)
 			ss << "Token type: " << token.type;
 			if (token.type == TOKEN_TYPE_INTLIT)
 			{
-				ss << " Token value: " << token.intValue;
+				ss << ", Token value: " << token.intValue;
 			}
 			Logger::getInstance().log(LogLevel::DEBUG, ss.str());
 		#endif
+
+		if (token.type == TOKEN_TYPE_EOF)
+		{
+			break;
+		}
 	}
     return (0);
 }

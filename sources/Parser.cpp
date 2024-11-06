@@ -62,25 +62,43 @@ t_ast_node *Parser::primary(void)
 	}
 }
 
-t_ast_node *Parser::binexpr(void)
+// Yeni fonksiyonlar: Öncelik seviyelerine göre işlem fonksiyonları
+t_ast_node *Parser::multiplicative(void)
 {
-	t_ast_node *node, *left, *right;
-	t_ast_node_type nodeType;
+	t_ast_node *left = primary();
 	t_token *token = Lexer::getInstance().getToken();
 
-	left = primary();
-
-	if (token->type == TOKEN_TYPE_EOF)
+	while (token->type == TOKEN_TYPE_STAR || token->type == TOKEN_TYPE_SLASH)
 	{
-		return (left);
+		t_ast_node_type nodeType = getASTNodeType(token->type);
+		Lexer::getInstance().getNextToken();
+		t_ast_node *right = primary();
+		left = createASTNode(nodeType, 0, left, right);
+		token = Lexer::getInstance().getToken();
 	}
-	
-	nodeType = getASTNodeType(token->type);
-	Lexer::getInstance().getNextToken();
-	right = binexpr();
-	node = createASTNode(nodeType, 0, left, right);
+	return left;
+}
 
-	return (node);
+t_ast_node *Parser::additive(void)
+{
+	t_ast_node *left = multiplicative();
+	t_token *token = Lexer::getInstance().getToken();
+
+	while (token->type == TOKEN_TYPE_PLUS || token->type == TOKEN_TYPE_MINUS)
+	{
+		t_ast_node_type nodeType = getASTNodeType(token->type);
+		Lexer::getInstance().getNextToken();
+		t_ast_node *right = multiplicative();
+		left = createASTNode(nodeType, 0, left, right);
+		token = Lexer::getInstance().getToken();
+	}
+	return left;
+}
+
+// Binexpr fonksiyonu en düşük öncelik seviyesinden başlar
+t_ast_node *Parser::binexpr(void)
+{
+	return additive(); // Artık en düşük öncelikten başlayarak tüm işlemleri zincirleme olarak çağıracak
 }
 
 int Parser::interpretAST(t_ast_node *node)

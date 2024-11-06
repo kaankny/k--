@@ -19,6 +19,8 @@ class Parser
 		t_ast_node *createASTUnaryNode(int op, t_ast_node *left, int intValue);
 		
 		t_ast_node *primary(void);
+		t_ast_node *multiplicative(void);
+		t_ast_node *additive(void);
 		t_ast_node *binexpr(void);
 
 		int interpretAST(t_ast_node *node);

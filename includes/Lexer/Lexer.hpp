@@ -17,7 +17,7 @@ class Lexer
 
 		bool getNextToken();
 
-		t_token getToken() const { return m_token; }
+		t_token *getToken() { return &m_token; }
     private:
         Lexer() {}
         Lexer(Lexer const&) = delete;

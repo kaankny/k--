@@ -1,0 +1,159 @@
+#include "../includes/Lexer/Lexer.hpp"
+#include "../includes/Logger.hpp"
+#include "../includes/messages.h"
+
+#include <fstream>
+#include <unordered_map>
+#include <cctype>    // for std::isspace
+#include <cstdlib>   // for std::atoi
+
+void Lexer::init(const char *inputFilePath)
+{
+    this->m_inputFileName = inputFilePath;
+    std::ifstream file(inputFilePath);
+    if (!file.is_open())
+    {
+        Logger::getInstance().log(LogLevel::ERROR, MSG_COULD_NOT_OPEN_FILE(inputFilePath));
+        exit(1);
+    }
+
+    std::string line;
+    while (std::getline(file, line))
+    {
+        this->m_inputFileContent += line;
+        this->m_inputFileContent += '\n';
+    }
+
+    // Initialize keyword map for reserved words
+    m_keywordMap = {
+        {"if", TOKEN_TYPE_IF},
+        {"else", TOKEN_TYPE_ELSE},
+        {"while", TOKEN_TYPE_WHILE},
+        {"return", TOKEN_TYPE_RETURN}
+        // Add other keywords as necessary
+    };
+}
+
+bool Lexer::getNextToken()
+{
+    this->skipWhitespaces();
+    this->skipComments();
+
+    if (this->m_currentIndex >= this->m_inputFileContent.size())
+    {
+        this->m_token.type = TOKEN_TYPE_EOF;
+        return true;
+    }
+
+    char currentChar = this->m_inputFileContent[this->m_currentIndex];
+
+    switch (currentChar)
+    {
+        case '+':
+            this->m_token.type = TOKEN_TYPE_PLUS;
+            break;
+        case '-':
+            this->m_token.type = TOKEN_TYPE_MINUS;
+            break;
+        case '*':
+            this->m_token.type = TOKEN_TYPE_STAR;
+            break;
+        case '/':
+            this->m_token.type = TOKEN_TYPE_SLASH;
+            break;
+        case '(':
+            this->m_token.type = TOKEN_TYPE_LPAREN;
+            break;
+        case ')':
+            this->m_token.type = TOKEN_TYPE_RPAREN;
+            break;
+        default:
+            if (std::isdigit(currentChar))
+            {
+                // Handle integer literal using atoi
+                int startIdx = this->m_currentIndex;
+                while (this->m_currentIndex < this->m_inputFileContent.size() && std::isdigit(this->m_inputFileContent[this->m_currentIndex]))
+                {
+                    this->m_currentIndex++;
+                }
+
+                this->m_token.type = TOKEN_TYPE_INTLIT;
+                this->m_token.intValue = std::atoi(this->m_inputFileContent.substr(startIdx, this->m_currentIndex - startIdx).c_str());
+                this->m_currentIndex--; // Adjust because we will increment after switch
+            }
+            else if (std::isalpha(currentChar))
+            {
+                // Handle identifier or keyword
+                int startIdx = this->m_currentIndex;
+                while (this->m_currentIndex < this->m_inputFileContent.size() && (std::isalnum(this->m_inputFileContent[this->m_currentIndex]) || this->m_inputFileContent[this->m_currentIndex] == '_'))
+                {
+                    this->m_currentIndex++;
+                }
+
+                std::string word = this->m_inputFileContent.substr(startIdx, this->m_currentIndex - startIdx);
+                auto keywordIt = m_keywordMap.find(word);
+                if (keywordIt != m_keywordMap.end())
+                {
+                    this->m_token.type = keywordIt->second; // Keyword token
+                }
+                else
+                {
+                    this->m_token.type = TOKEN_TYPE_IDENTIFIER; // Identifier token
+                }
+                this->m_currentIndex--; // Adjust because we will increment after switch
+            }
+            else
+            {
+                Logger::getInstance().log(LogLevel::ERROR, "Unknown token");
+                exit(1);
+            }
+    }
+    this->m_currentIndex++;
+    return true;
+}
+
+void Lexer::skipWhitespaces()
+{
+    while (this->m_currentIndex < this->m_inputFileContent.size() && std::isspace(this->m_inputFileContent[this->m_currentIndex]))
+    {
+        if (this->m_inputFileContent[this->m_currentIndex] == '\n')
+        {
+            this->m_currentLine++;
+            this->m_currentColumn = 0;
+        }
+        else
+        {
+            this->m_currentColumn++;
+        }
+        this->m_currentIndex++;
+    }
+}
+
+void Lexer::skipComments()
+{
+    if (this->m_inputFileContent[this->m_currentIndex] == '/' && this->m_inputFileContent[this->m_currentIndex + 1] == '/')
+    {
+        while (this->m_currentIndex < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex] != '\n')
+        {
+            this->m_currentIndex++;
+        }
+    }
+    else if (this->m_inputFileContent[this->m_currentIndex] == '/' && this->m_inputFileContent[this->m_currentIndex + 1] == '*')
+    {
+        this->m_currentIndex += 2;
+        while (this->m_currentIndex < this->m_inputFileContent.size() && (this->m_inputFileContent[this->m_currentIndex] != '*' || this->m_inputFileContent[this->m_currentIndex + 1] != '/'))
+        {
+            if (this->m_inputFileContent[this->m_currentIndex] == '\n')
+            {
+                this->m_currentLine++;
+                this->m_currentColumn = 0;
+            }
+            else
+            {
+                this->m_currentColumn++;
+            }
+            this->m_currentIndex++;
+        }
+        this->m_currentIndex += 2;
+    }
+}

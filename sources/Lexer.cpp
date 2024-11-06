@@ -36,57 +36,58 @@ bool Lexer::getNextToken()
 
 	char currentChar = this->m_inputFileContent[this->m_currentIndex];
 
-	if (currentChar == '+')
+	switch (currentChar)
 	{
-		this->m_token.type = TOKEN_TYPE_PLUS;
-	}
-	else if (currentChar == '-')
-	{
-		this->m_token.type = TOKEN_TYPE_MINUS;
-	}
-	else if (currentChar == '*')
-	{
-		this->m_token.type = TOKEN_TYPE_STAR;
-	}
-	else if (currentChar == '/')
-	{
-		this->m_token.type = TOKEN_TYPE_SLASH;
-	}
-	else if (currentChar == '(')
-	{
-		this->m_token.type = TOKEN_TYPE_LPAREN;
-	}
-	else if (currentChar == ')')
-	{
-		this->m_token.type = TOKEN_TYPE_RPAREN;
-	}
-	else if (currentChar >= '0' && currentChar <= '9')
-	{
-		this->m_token.type = TOKEN_TYPE_INTLIT;
-		this->m_token.intValue = 0;
-		while (this->m_currentIndex < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex] >= '0' && this->m_inputFileContent[this->m_currentIndex] <= '9')
-		{
-			this->m_token.intValue = this->m_token.intValue * 10 + this->m_inputFileContent[this->m_currentIndex] - '0';
-			this->m_currentIndex++;
-		}
-		this->m_currentIndex--;
-	}
-	else
-	{
-		exit(1);
+		case '+':
+			this->m_token.type = TOKEN_TYPE_PLUS;
+			break;
+		case '-':
+			this->m_token.type = TOKEN_TYPE_MINUS;
+			break;
+		case '*':
+			this->m_token.type = TOKEN_TYPE_STAR;
+			break;
+		case '/':
+			this->m_token.type = TOKEN_TYPE_SLASH;
+			break;
+		case '(':
+			this->m_token.type = TOKEN_TYPE_LPAREN;
+			break;
+		case ')':
+			this->m_token.type = TOKEN_TYPE_RPAREN;
+			break;
+		case '0' ... '9':
+			this->m_token.type = TOKEN_TYPE_INTLIT;
+			this->m_token.intValue = 0;
+			while (this->m_currentIndex < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex] >= '0' && this->m_inputFileContent[this->m_currentIndex] <= '9')
+			{
+				this->m_token.intValue = this->m_token.intValue * 10 + this->m_inputFileContent[this->m_currentIndex] - '0';
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			this->m_currentIndex--;
+			this->m_currentColumn--;
+			break;
+		default:
+			Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_CHARACTER(currentChar, this->m_currentLine, this->m_currentColumn));
+			exit(1);
 	}
 	this->m_currentIndex++;
+	this->m_currentColumn++;
 	return true;
 }
 
 void Lexer::skipWhitespaces()
 {
-	while (this->m_currentIndex < this->m_inputFileContent.size() && (this->m_inputFileContent[this->m_currentIndex] == ' ' || this->m_inputFileContent[this->m_currentIndex] == '\t' || this->m_inputFileContent[this->m_currentIndex] == '\n'))
+	while (this->m_currentIndex < this->m_inputFileContent.size() &&
+			(this->m_inputFileContent[this->m_currentIndex] == ' ' || 
+			this->m_inputFileContent[this->m_currentIndex] == '\t' || 
+			this->m_inputFileContent[this->m_currentIndex] == '\n'))
 	{
 		if (this->m_inputFileContent[this->m_currentIndex] == '\n')
 		{
 			this->m_currentLine++;
-			this->m_currentColumn = 0;
+			this->m_currentColumn = 1;
 		}
 		else
 		{

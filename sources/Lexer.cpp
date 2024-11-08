@@ -38,6 +38,9 @@ bool Lexer::getNextToken()
 
 	switch (currentChar)
 	{
+		case ';':
+			this->m_token.type = TOKEN_TYPE_SEMICOLON;
+			break;
 		case '+':
 			this->m_token.type = TOKEN_TYPE_PLUS;
 			break;
@@ -68,6 +71,69 @@ bool Lexer::getNextToken()
 			this->m_currentIndex--;
 			this->m_currentColumn--;
 			break;
+		case 'a' ... 'z':
+		case 'A' ... 'Z':
+			this->m_token.type = TOKEN_TYPE_IDENTIFIER;
+			this->m_token.identifier = "";
+			while (this->m_currentIndex < this->m_inputFileContent.size() && ((this->m_inputFileContent[this->m_currentIndex] >= 'a' && this->m_inputFileContent[this->m_currentIndex] <= 'z') || (this->m_inputFileContent[this->m_currentIndex] >= 'A' && this->m_inputFileContent[this->m_currentIndex] <= 'Z')))
+			{
+				this->m_token.identifier += this->m_inputFileContent[this->m_currentIndex];
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			this->m_currentIndex--;
+			this->m_currentColumn--;
+
+			switch (this->m_token.identifier[0])
+			{
+				case 'a':
+					if (this->m_token.identifier == "assign")
+						this->m_token.type = TOKEN_TYPE_ASSIGN;
+					break;
+				case 'w':
+					if (this->m_token.identifier == "write")
+						this->m_token.type = TOKEN_TYPE_WRITE;
+					break;
+				case 'r':
+					if (this->m_token.identifier == "read")
+						this->m_token.type = TOKEN_TYPE_READ;
+					break;
+				case 'i':
+					if (this->m_token.identifier == "int")
+						this->m_token.type = TOKEN_TYPE_INT;
+					break;
+				default:
+					break;
+			}
+			break;
+		case '"':
+			this->m_token.type = TOKEN_TYPE_STRINGLIT;
+			this->m_token.stringValue = "";
+			this->m_currentIndex++;
+			this->m_currentColumn++;
+			while (this->m_currentIndex < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex] != '"')
+			{
+				this->m_token.stringValue += this->m_inputFileContent[this->m_currentIndex];
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			if (this->m_currentIndex >= this->m_inputFileContent.size())
+			{
+				Logger::getInstance().log(LogLevel::ERROR, MSG_UNTERMINATED_STRING(this->m_inputFileName, this->m_currentLine, this->m_currentColumn));
+				exit(1);
+			}
+			break;
+		case '\'':
+			this->m_token.type = TOKEN_TYPE_CHARLIT;
+			this->m_token.charValue = this->m_inputFileContent[this->m_currentIndex + 1];
+			this->m_currentIndex += 2;
+			this->m_currentColumn += 2;
+			if (this->m_inputFileContent[this->m_currentIndex] != '\'')
+			{
+				Logger::getInstance().log(LogLevel::ERROR, MSG_UNTERMINATED_STRING(this->m_inputFileName, this->m_currentLine, this->m_currentColumn));
+				exit(1);
+			}
+			break;
 		default:
 			Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_CHARACTER(currentChar, this->m_currentLine, this->m_currentColumn));
 			exit(1);
@@ -82,7 +148,10 @@ void Lexer::skipWhitespaces()
 	while (this->m_currentIndex < this->m_inputFileContent.size() &&
 			(this->m_inputFileContent[this->m_currentIndex] == ' ' || 
 			this->m_inputFileContent[this->m_currentIndex] == '\t' || 
-			this->m_inputFileContent[this->m_currentIndex] == '\n'))
+			this->m_inputFileContent[this->m_currentIndex] == '\n' ||
+			this->m_inputFileContent[this->m_currentIndex] == '\r' ||
+			this->m_inputFileContent[this->m_currentIndex] == '\v' ||
+			this->m_inputFileContent[this->m_currentIndex] == '\f'))
 	{
 		if (this->m_inputFileContent[this->m_currentIndex] == '\n')
 		{
@@ -99,30 +168,32 @@ void Lexer::skipWhitespaces()
 
 void Lexer::skipComments()
 {
-	return ;
-	if (this->m_inputFileContent[this->m_currentIndex] == '/' && this->m_inputFileContent[this->m_currentIndex + 1] == '/')
-	{
-		while (this->m_currentIndex < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex] != '\n')
-		{
-			this->m_currentIndex++;
-		}
-	}
-	else if (this->m_inputFileContent[this->m_currentIndex] == '/' && this->m_inputFileContent[this->m_currentIndex + 1] == '*')
-	{
-		this->m_currentIndex += 2;
-		while (this->m_currentIndex < this->m_inputFileContent.size() && (this->m_inputFileContent[this->m_currentIndex] != '*' || this->m_inputFileContent[this->m_currentIndex + 1] != '/'))
-		{
-			if (this->m_inputFileContent[this->m_currentIndex] == '\n')
-			{
-				this->m_currentLine++;
-				this->m_currentColumn = 0;
-			}
-			else
-			{
-				this->m_currentColumn++;
-			}
-			this->m_currentIndex++;
-		}
-		this->m_currentIndex += 2;
-	}
+    if (this->m_currentIndex + 1 < this->m_inputFileContent.size())
+    {
+        if (this->m_inputFileContent[this->m_currentIndex] == '/' && this->m_inputFileContent[this->m_currentIndex + 1] == '/')
+        {
+            while (this->m_currentIndex < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex] != '\n')
+            {
+                this->m_currentIndex++;
+            }
+        }
+        else if (this->m_inputFileContent[this->m_currentIndex] == '/' && this->m_inputFileContent[this->m_currentIndex + 1] == '*')
+        {
+            this->m_currentIndex += 2;
+            while (this->m_currentIndex + 1 < this->m_inputFileContent.size() && !(this->m_inputFileContent[this->m_currentIndex] == '*' && this->m_inputFileContent[this->m_currentIndex + 1] == '/'))
+            {
+                if (this->m_inputFileContent[this->m_currentIndex] == '\n')
+                {
+                    this->m_currentLine++;
+                    this->m_currentColumn = 0;
+                }
+                else
+                {
+                    this->m_currentColumn++;
+                }
+                this->m_currentIndex++;
+            }
+            this->m_currentIndex += 2;
+        }
+    }
 }

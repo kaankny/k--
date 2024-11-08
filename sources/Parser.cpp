@@ -3,139 +3,103 @@
 #include "../includes/Logger.hpp"
 #include "../includes/messages.h"
 
-t_ast_node_type Parser::getASTNodeType(t_token_type tokenType)
+std::vector<t_ast_node *> Parser::parse()
 {
-	switch (tokenType)
+	this->m_currentToken = Lexer::getInstance().getToken();
+	std::vector<t_ast_node *> ast;
+
+	while (Lexer::getInstance().getNextToken())
 	{
-		case TOKEN_TYPE_PLUS:
-			return (AST_NODE_TYPE_ADD);
-		case TOKEN_TYPE_MINUS:
-			return (AST_NODE_TYPE_SUB);
-		case TOKEN_TYPE_STAR:
-			return (AST_NODE_TYPE_MUL);
-		case TOKEN_TYPE_SLASH:
-			return (AST_NODE_TYPE_DIV);
-		case TOKEN_TYPE_INTLIT:
-			return (AST_NODE_TYPE_INTLIT);
+		if (m_currentToken->type == TOKEN_TYPE_EOF)
+			break;
+
+		t_ast_node *node = parseStatement();
+		if (node)
+			ast.push_back(node);
+	}
+
+	return (ast);
+}
+
+t_ast_node *Parser::parseStatement()
+{
+	switch (m_currentToken->type)
+	{
+		case TOKEN_TYPE_ASSIGN:
+			return parseAssignStatement();
+		case TOKEN_TYPE_WRITE:
+			return parseWriteStatement();
 		default:
-			Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE(tokenType));
+			Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_STATEMENT(m_currentToken->type));
 			exit(1);
 	}
+	return nullptr;
 }
 
-t_ast_node *Parser::createASTNode(int op, int intValue, t_ast_node *left, t_ast_node *right)
+t_ast_node *Parser::parseAssignStatement()
 {
-	t_ast_node *node = new t_ast_node;
-	node->op = op;
-	node->intValue = intValue;
-	node->left = left;
-	node->right = right;
-	return (node);
-}
+	// ASSIGN INT A 5;
+	advanceToken();
 
-t_ast_node *Parser::createASTLeaf(int op, int intValue)
-{
-	return createASTNode(op, intValue, nullptr, nullptr);
-}
-
-t_ast_node *Parser::createASTUnaryNode(int op, t_ast_node *left, int intValue)
-{
-	return createASTNode(op, intValue, left, nullptr);
-}
-
-t_ast_node *Parser::primary(void)
-{
-	t_ast_node *node;
-	t_token *token = Lexer::getInstance().getToken();
-
-	switch (token->type)
-	{
-		case TOKEN_TYPE_INTLIT:
-			node = createASTLeaf(AST_NODE_TYPE_INTLIT, token->intValue);
-			Lexer::getInstance().getNextToken();
-			return (node);
-		case TOKEN_TYPE_EOF:
-			return (nullptr);
-		default:
-			Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE(token->type));
-			exit(1);
-	}
-}
-
-// Yeni fonksiyonlar: Öncelik seviyelerine göre işlem fonksiyonları
-t_ast_node *Parser::multiplicative(void)
-{
-	t_ast_node *left = primary();
-	t_token *token = Lexer::getInstance().getToken();
-
-	while (token->type == TOKEN_TYPE_STAR || token->type == TOKEN_TYPE_SLASH)
-	{
-		t_ast_node_type nodeType = getASTNodeType(token->type);
-		Lexer::getInstance().getNextToken();
-		t_ast_node *right = primary();
-		left = createASTNode(nodeType, 0, left, right);
-		token = Lexer::getInstance().getToken();
-	}
-	return left;
-}
-
-t_ast_node *Parser::additive(void)
-{
-	t_ast_node *left = multiplicative();
-	t_token *token = Lexer::getInstance().getToken();
-
-	while (token->type == TOKEN_TYPE_PLUS || token->type == TOKEN_TYPE_MINUS)
-	{
-		t_ast_node_type nodeType = getASTNodeType(token->type);
-		Lexer::getInstance().getNextToken();
-		t_ast_node *right = multiplicative();
-		left = createASTNode(nodeType, 0, left, right);
-		token = Lexer::getInstance().getToken();
-	}
-	return left;
-}
-
-// Binexpr fonksiyonu en düşük öncelik seviyesinden başlar
-t_ast_node *Parser::binexpr(void)
-{
-	return additive(); // Artık en düşük öncelikten başlayarak tüm işlemleri zincirleme olarak çağıracak
-}
-
-int Parser::interpretAST(t_ast_node *node)
-{
-	if (node == nullptr)
-	{
-		Logger::getInstance().log(LogLevel::ERROR, "Empty AST node.");
-		return (0);
-	}
-	else if (node->op == AST_NODE_TYPE_INTLIT)
-	{
-		return (node->intValue);
-	}
+	std::string varType;
+	if (m_currentToken->type == TOKEN_TYPE_INT)
+		varType = "int";
 	else
 	{
-		int leftValue = 0;
-		int rightValue = 0;
-		if (node->left)
-			leftValue = interpretAST(node->left);
-		if (node->right)
-			rightValue = interpretAST(node->right);
+		Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE(m_currentToken->type));
+		exit(1);
+	}
 
-		switch (node->op)
-		{
-			case AST_NODE_TYPE_ADD:
-				return (leftValue + rightValue);
-			case AST_NODE_TYPE_SUB:
-				return (leftValue - rightValue);
-			case AST_NODE_TYPE_MUL:
-				return (leftValue * rightValue);
-			case AST_NODE_TYPE_DIV:
-				return (leftValue / rightValue);
-			case AST_NODE_TYPE_INTLIT:
-				return (node->intValue);
-			default:
-				Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE(node->op));
-				exit(1);
-		}
+	advanceToken();
+
+	if (m_currentToken->type != TOKEN_TYPE_IDENTIFIER)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE(m_currentToken->type));
+		exit(1);
+	}
+
+	std::string varName = m_currentToken->identifier;
+	advanceToken();
+
+	if (m_currentToken->type != TOKEN_TYPE_INTLIT)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE(m_currentToken->type));
+		exit(1);
+	}
+
+	int intValue = m_currentToken->intValue;
+
+	advanceToken();
+
+	if (m_currentToken->type != TOKEN_TYPE_SEMICOLON)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE(m_currentToken->type));
+		exit(1);
+	}
+
+	advanceToken();
+
+	t_ast_node_assign *node = new t_ast_node_assign;
+	node->type = t_ast_node_type::AST_NODE_TYPE_ASSIGN;
+	node->varType = varType;
+	node->varName = varName;
+	node->intValue = intValue;
+
+	return node;
+}
+
+t_ast_node *Parser::parseWriteStatement()
+{
+	return nullptr;
+}
+
+void Parser::advanceToken()
+{
+	if (Lexer::getInstance().getNextToken())
+		m_currentToken = Lexer::getInstance().getToken();
+	else
+	{
+		Logger::getInstance().log(LogLevel::ERROR, MSG_TOKEN_NOT_FOUND);
+		exit(1);
 	}
 }

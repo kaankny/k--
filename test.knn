@@ -1,0 +1,3 @@
+assign int a 5;
+assign int b a;
+write a;

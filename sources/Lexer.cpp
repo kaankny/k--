@@ -96,6 +96,8 @@ bool Lexer::getNextToken()
 				case 'w':
 					if (this->m_token.identifier == "write")
 						this->m_token.type = TOKEN_TYPE_WRITE;
+					else if (this->m_token.identifier == "writeln")
+						this->m_token.type = TOKEN_TYPE_WRITELN;
 					break;
 				case 'r':
 					if (this->m_token.identifier == "read")

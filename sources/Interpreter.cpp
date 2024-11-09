@@ -174,5 +174,8 @@ void Interpreter::interpretAssignStatement(t_ast_node_assign *node)
 void Interpreter::interpretWriteStatement(t_ast_node_write *node)
 {
 	Value value = evaluateExpression(node->expr);
-	std::cout << value.toString() << std::endl;
+	if (node->writeType == 0)
+		std::cout << value.toString();
+	else
+		std::cout << value.toString() << std::endl;
 }

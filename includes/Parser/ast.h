@@ -50,6 +50,7 @@ typedef struct s_ast_node_assign : public s_ast_node
 typedef struct s_ast_node_write : public s_ast_node
 {
 	t_ast_node *expr;
+	int	writeType; // 0: write, 1: writeln
 }   t_ast_node_write;
 
 #endif

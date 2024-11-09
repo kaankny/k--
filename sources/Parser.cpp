@@ -34,6 +34,7 @@ t_ast_node *Parser::parseStatement()
 		case TOKEN_TYPE_ASSIGN:
 			return parseAssignStatement();
 		case TOKEN_TYPE_WRITE:
+		case TOKEN_TYPE_WRITELN:
 			return parseWriteStatement();
 		default:
 			std::cout << "Invalid statement type: " << m_currentToken->type << std::endl;
@@ -193,6 +194,7 @@ t_ast_node *Parser::parseAssignStatement()
 
 t_ast_node *Parser::parseWriteStatement()
 {
+	int writeType = m_currentToken->type == TOKEN_TYPE_WRITE ? 0 : 1;
 	advanceToken();
 
 	if (m_currentToken->type != TOKEN_TYPE_LPAREN)
@@ -216,6 +218,7 @@ t_ast_node *Parser::parseWriteStatement()
 	t_ast_node_write *writeNode = new t_ast_node_write;
 	writeNode->type = t_ast_node_type::AST_NODE_TYPE_WRITE;
 	writeNode->expr = exprNode;
+	writeNode->writeType = writeType;
 
 	return writeNode;
 }

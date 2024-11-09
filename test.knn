@@ -1,0 +1,3 @@
+write("name: ");
+writeln("kaan");
+write("alt satir");

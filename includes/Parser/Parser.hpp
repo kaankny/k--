@@ -1,9 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 
 #include "ast.h"
 #include "../Lexer/token.h"
+
 
 class Parser
 {
@@ -25,8 +27,11 @@ class Parser
 
 		void advanceToken();
 
+		t_ast_node *parseExpression();
+		t_ast_node *parseTerm();
+		t_ast_node *parseFactor();
 		t_ast_node *parseAssignStatement();
 		t_ast_node *parseWriteStatement();
 		t_ast_node *parseStatement();
-
+	
 };

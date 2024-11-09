@@ -59,6 +59,9 @@ bool Lexer::getNextToken()
 		case ')':
 			this->m_token.type = TOKEN_TYPE_RPAREN;
 			break;
+		case '=':
+			this->m_token.type = TOKEN_TYPE_EQUAL;
+			break;
 		case '0' ... '9':
 			this->m_token.type = TOKEN_TYPE_INTLIT;
 			this->m_token.intValue = 0;
@@ -101,6 +104,14 @@ bool Lexer::getNextToken()
 				case 'i':
 					if (this->m_token.identifier == "int")
 						this->m_token.type = TOKEN_TYPE_INT;
+					break;
+				case 'c':
+					if (this->m_token.identifier == "char")
+						this->m_token.type = TOKEN_TYPE_CHAR;
+					break;
+				case 's':
+					if (this->m_token.identifier == "string")
+						this->m_token.type = TOKEN_TYPE_STRING;
 					break;
 				default:
 					break;

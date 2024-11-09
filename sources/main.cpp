@@ -10,7 +10,6 @@ int main(int ac, char **av)
 {
 	if (ac < 2)
 	{
-		Logger::getInstance().log(LogLevel::ERROR, MSG_NO_INPUT_FILE);
 		return (1);
 	}
 

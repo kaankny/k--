@@ -64,6 +64,14 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
                 {
                     return Value(leftValue.stringValue + rightValue.stringValue);
                 }
+				else if (leftValue.valueType == "string" && rightValue.valueType == "int")
+				{
+					return Value(leftValue.stringValue + std::to_string(rightValue.intValue));
+				}
+				else if (leftValue.valueType == "int" && rightValue.valueType == "string")
+				{
+					return Value(std::to_string(leftValue.intValue) + rightValue.stringValue);
+				}
                 else
                 {
                     Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '+' operation");
@@ -75,6 +83,18 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 				if (leftValue.valueType == "int" && rightValue.valueType == "int")
 				{
 					return Value(leftValue.intValue - rightValue.intValue);
+				}
+				else if (leftValue.valueType == "string" && rightValue.valueType == "string")
+				{
+					std::string::size_type pos = leftValue.stringValue.find(rightValue.stringValue);
+					if (pos != std::string::npos)
+					{
+						return Value(leftValue.stringValue.substr(0, pos) + leftValue.stringValue.substr(pos + rightValue.stringValue.length()));
+					}
+					else
+					{
+						return leftValue;
+					}
 				}
 				else
 				{
@@ -88,9 +108,29 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 				{
 					return Value(leftValue.intValue * rightValue.intValue);
 				}
-
-				Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '*' operation");
-				exit(1);
+				else if (leftValue.valueType == "string" && rightValue.valueType == "int")
+				{
+					std::string result = "";
+					for (int i = 0; i < rightValue.intValue; i++)
+					{
+						result += leftValue.stringValue;
+					}
+					return Value(result);
+				}
+				else if (leftValue.valueType == "int" && rightValue.valueType == "string")
+				{
+					std::string result = "";
+					for (int i = 0; i < leftValue.intValue; i++)
+					{
+						result += rightValue.stringValue;
+					}
+					return Value(result);
+				}
+				else
+				{
+					Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '*' operation");
+					exit(1);
+				}
 			}
 			else if (exprNode->op == '/')
 			{
@@ -123,7 +163,6 @@ void Interpreter::interpretAssignStatement(t_ast_node_assign *node)
     if (node->varType == value.valueType)
     {
         context.setVariable(node->varName, value);
-        Logger::getInstance().log(LogLevel::INFO, "Assigned " + node->varName + " = " + value.toString());
     }
     else
     {
@@ -132,9 +171,8 @@ void Interpreter::interpretAssignStatement(t_ast_node_assign *node)
     }
 }
 
-
-
-
 void Interpreter::interpretWriteStatement(t_ast_node_write *node)
 {
+	Value value = evaluateExpression(node->expr);
+	std::cout << value.toString() << std::endl;
 }

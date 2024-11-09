@@ -1,3 +1,7 @@
+"kanyilmaz" - "kan" = "yilmaz"
+
+
+
 assign int age = 1;
 assign int num = 1 + 5 * (age + 2);
 assign string name = "kaan";

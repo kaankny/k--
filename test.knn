@@ -1,5 +1,0 @@
-assign int age = 1;
-assign int num = 1 + 5 * (age + 2);
-assign string name = "kaan";
-assign string surname = "kanyilmaz";
-assign string message = "Welcome " + name + " " + surname + "!";

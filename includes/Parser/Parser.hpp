@@ -33,5 +33,6 @@ class Parser
 		t_ast_node *parseAssignStatement();
 		t_ast_node *parseWriteStatement();
 		t_ast_node *parseStatement();
+		t_ast_node *parseVariableAssign();
 	
 };

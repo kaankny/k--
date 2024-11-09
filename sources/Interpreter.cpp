@@ -158,7 +158,29 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 
 void Interpreter::interpretAssignStatement(t_ast_node_assign *node)
 {
+	if (node->expr == nullptr)
+	{
+		Value value = Value();
+		value.valueType = node->varType;
+		context.setVariable(node->varName, value);
+		return;
+	}
+
     Value value = evaluateExpression(node->expr);
+
+	// if (node->varType == "auto")
+	// 	node->varType = value.valueType;
+	if (node->varType == "")
+	{
+		std::string varType = context.getVariableType(node->varName);
+		if (varType != value.valueType)
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in assignment to variable '" + node->varName + "'");
+			exit(1);
+		}
+
+		node->varType = varType;
+	}
 
     if (node->varType == value.valueType)
     {
@@ -174,6 +196,11 @@ void Interpreter::interpretAssignStatement(t_ast_node_assign *node)
 void Interpreter::interpretWriteStatement(t_ast_node_write *node)
 {
 	Value value = evaluateExpression(node->expr);
+	if (value.valueType == "undefined")
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Cannot write an undefined value");
+		exit(1);
+	}
 	if (node->writeType == 0)
 		std::cout << value.toString();
 	else

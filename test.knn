@@ -1,3 +1,47 @@
-write("name: ");
-writeln("kaan");
-write("alt satir");
+assign int x = 5;
+assign int y = 10;
+assign int sum = x + y;
+assign int product = x * y;
+assign int difference = y - x;
+assign int quotient = y / x;
+
+assign string strone = "Hello";
+assign string strtwo = "World";
+assign string concatenated = strone + " " + strtwo;
+
+assign string message = "The result of 5 + 10 is: " + sum;
+assign string calcMessage = "The product of 5 and 10 is: " + product;
+
+writeln("x = " + x);
+writeln("y = " + y);
+writeln("sum = " + sum);
+writeln("product = " + product);
+writeln("difference = " + difference);
+writeln("quotient = " + quotient);
+
+writeln("Concatenated string: " + concatenated);
+writeln(message);
+writeln(calcMessage);
+
+assign int result = (x + y) * 2;
+assign string resultMessage = "Result of (x + y) * 2 is: " + result;
+
+writeln(resultMessage);
+
+assign string finalMessage = "Sum of x and y plus product: " + (sum + product);
+writeln(finalMessage);
+
+assign string complexMessage = "The sum is " + sum + " and the product is " + product;
+writeln(complexMessage);
+
+
+
+assign int complexResult = x * (y + x) - (y / x);
+assign string complexMessagetwo = "Complex result: " + complexResult;
+writeln(complexMessagetwo);
+
+assign string calculationMessage = strone + " " + strtwo + " says: " + (x + y);
+writeln(calculationMessage);
+
+assign string finalCalcMessage = "Final calculation: " + (x + y * 2);
+writeln(finalCalcMessage);

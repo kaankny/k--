@@ -94,3 +94,9 @@ t_ast_node_assign
     └── right: t_ast_node_expr ('+')
         ├── left: t_ast_node_variable (surname)
         └── right: t_ast_node_literal ("!")
+
+
+
+function add(a: int, b: int) -> int {
+    return a + b;
+}

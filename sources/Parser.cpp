@@ -29,20 +29,53 @@ std::vector<t_ast_node *> Parser::parse()
 
 t_ast_node *Parser::parseStatement()
 {
-	switch (m_currentToken->type)
-	{
-		case TOKEN_TYPE_ASSIGN:
-			return parseAssignStatement();
-		case TOKEN_TYPE_WRITE:
-		case TOKEN_TYPE_WRITELN:
-			return parseWriteStatement();
-		default:
-			std::cout << "Invalid statement type: " << m_currentToken->type << std::endl;
-			Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_STATEMENT(m_currentToken->type));
-			exit(1);
-	}
-	return nullptr;
+    switch (m_currentToken->type)
+    {
+        case TOKEN_TYPE_ASSIGN:
+            return parseAssignStatement();
+        case TOKEN_TYPE_WRITE:
+        case TOKEN_TYPE_WRITELN:
+            return parseWriteStatement();
+        case TOKEN_TYPE_IDENTIFIER: // Değişken adı ile başlıyorsa atama olarak yorumlanır
+            return parseVariableAssign();
+        default:
+            std::cout << "Invalid statement type: " << m_currentToken->type << std::endl;
+            Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_STATEMENT(m_currentToken->type));
+            exit(1);
+    }
+    return nullptr;
 }
+
+t_ast_node *Parser::parseVariableAssign()
+{
+    // Değişken ismini al
+    std::string varName = m_currentToken->identifier;
+    advanceToken();
+
+    // Eşittir sembolünü kontrol et
+    if (m_currentToken->type == TOKEN_TYPE_EQUAL)
+    {
+        advanceToken();
+    }
+    else
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected '=' in assignment");
+        exit(1);
+    }
+
+    // İfadeyi çözümle
+    t_ast_node *exprNode = parseExpression();
+
+    // Atama AST düğümünü oluştur
+    t_ast_node_assign *assignNode = new t_ast_node_assign;
+    assignNode->type = t_ast_node_type::AST_NODE_TYPE_ASSIGN;
+    assignNode->varName = varName;
+    assignNode->expr = exprNode;
+
+    return assignNode;
+}
+
+
 
 t_ast_node *Parser::parseExpression()
 {
@@ -169,21 +202,21 @@ t_ast_node *Parser::parseAssignStatement()
     std::string varName = m_currentToken->identifier;
     advanceToken();
 
-    // Eşittir sembolünü kontrol et
+    t_ast_node *exprNode = nullptr; // Varsayılan olarak null bırakılır
+
+    // Eşittir sembolü kontrolü, değer varsa işlenir
     if (m_currentToken->type == TOKEN_TYPE_EQUAL)
     {
         advanceToken();
+        exprNode = parseExpression(); // İfade varsa çözümlenir
     }
-
-    // İfadeyi çözümle
-    t_ast_node *exprNode = parseExpression();
 
     // Atama AST düğümünü oluştur
     t_ast_node_assign *assignNode = new t_ast_node_assign;
     assignNode->type = t_ast_node_type::AST_NODE_TYPE_ASSIGN;
     assignNode->varType = varType;
     assignNode->varName = varName;
-    assignNode->expr = exprNode;
+    assignNode->expr = exprNode; // İfade varsa atanır, yoksa null kalır
 
     return assignNode;
 }

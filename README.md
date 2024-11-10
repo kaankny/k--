@@ -1,108 +1,58 @@
-"kanyilmaz" - "kan" = "yilmaz"
+## assign
+```
+assign int age = 19;
+assign string name = "Kaan";
+assign string surname = "Kanyilmaz";
+assign string fullName = name + " " + surname;	
+assign bool isStudent = true;
+```
 
+## write, writeln
+```
+writeln("Age: " + age);
+writeln("Name: " + name);
+writeln("Surname: " + surname);
+writeln("Full Name: " + fullName);
+writeln("Is Student: " + isStudent);
+```
 
+## read
+```
+// SOON
+read("Enter your age: ", age);
+read("Enter your name: ", name);
+read("Enter your surname: ", surname);
+read("Are you a student? (true/false): ", isStudent);
+```
 
-assign int age = 1;
-assign int num = 1 + 5 * (age + 2);
-assign string name = "kaan";
-assign string surname = "kanyilmaz";
-assign string message = "Welcome " + name + " " + surname + "!";
+## if-elseif-else
+```
+if (age > 18) {
+	writeln("You are an adult.");
+} elseif (age == 18) {
+	writeln("You are 18 years old.");
+} else {
+	writeln("You are a child.");
+} endif;
+```
 
-t_ast_node_assign
-├── varType: "int"
-├── varName: "age"
-└── expr: t_ast_node_literal
-    ├── valueType: "int"
-    └── intValue: 1
+## while
+```
+assign int i = 0;
+while (i < 5) {
+	writeln("i: " + i);
+	i = i + 1;
+} endwhile;
+```
 
-t_ast_node_assign
-├── varType: "int"
-├── varName: "num"
-└── expr: t_ast_node_expr (op: '+')
-    ├── left: t_ast_node_literal
-    │   ├── valueType: "int"
-    │   └── intValue: 1
-    └── right: t_ast_node_expr (op: '*')
-        ├── left: t_ast_node_literal
-        │   ├── valueType: "int"
-        │   └── intValue: 5
-        └── right: t_ast_node_expr (op: '+')
-            ├── left: t_ast_node_variable
-            │   └── varName: "age"
-            └── right: t_ast_node_literal
-                ├── valueType: "int"
-                └── intValue: 2
+## for
+```
+for (assign int i = 0; i < 5; i = i + 1) {
+	writeln("i: " + i);
+} endfor;
 
-t_ast_node_assign
-├── varType: "string"
-├── varName: "name"
-└── expr: t_ast_node_literal
-    ├── valueType: "string"
-    └── stringValue: "kaan"
-
-t_ast_node_assign
-├── varType: "string"
-├── varName: "surname"
-└── expr: t_ast_node_literal
-    ├── valueType: "string"
-    └── stringValue: "kanyilmaz"
-
-t_ast_node_assign
-├── varType: "string"
-├── varName: "message"
-└── expr: t_ast_node_expr (op: '+')
-    ├── left: t_ast_node_expr (op: '+')
-    │   ├── left: t_ast_node_expr (op: '+')
-    │   │   ├── left: t_ast_node_expr (op: '+')
-    │   │   │   ├── left: t_ast_node_literal
-    │   │   │   │   ├── valueType: "string"
-    │   │   │   │   └── stringValue: "Welcome "
-    │   │   │   └── right: t_ast_node_variable
-    │   │   │       └── varName: "name"
-    │   │   └── right: t_ast_node_literal
-    │   │       ├── valueType: "string"
-    │   │       └── stringValue: " "
-    │   └── right: t_ast_node_variable
-    │       └── varName: "surname"
-    └── right: t_ast_node_literal
-        ├── valueType: "string"
-        └── stringValue: "!"
-
--------------------------------------------------------------------------------
-
-assign int c = 2 + a;
-t_ast_node_assign:
-	varType = 'int'
-	varName = 'c'
-	expr:
-		left = t_ast_node_literal:
-			intValue = 2
-		op = '+'
-		right = t_ast_node_variable:
-			varName = 'a'
-
-
-t_ast_node_assign
-├── varType: "string"
-├── varName: "message"
-└── expr: t_ast_node_expr ('+')
-    ├── left: t_ast_node_expr ('+')
-    │   ├── left: t_ast_node_expr ('+')
-    │   │   ├── left: t_ast_node_literal ("Welcome ")
-    │   │   └── right: t_ast_node_variable (name)
-    │   └── right: t_ast_node_literal (" ")
-    └── right: t_ast_node_expr ('+')
-        ├── left: t_ast_node_variable (surname)
-        └── right: t_ast_node_literal ("!")
-
-
-
-function add(a: int, b: int) -> int {
-    return a + b;
-}
-
-while time elapsed less than 1000ms do
-{
-    writeln("Looping...");
-}
-endwhile;
+assign int i = 0;
+for (; i < 5; i = i + 1) {
+	writeln("i: " + i);
+} endfor;
+```

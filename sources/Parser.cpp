@@ -148,6 +148,15 @@ t_ast_node *Parser::parseFactor()
         advanceToken();
         return node;
     }
+	else if (m_currentToken->type == TOKEN_TYPE_TRUE || m_currentToken->type == TOKEN_TYPE_FALSE)
+	{
+		t_ast_node_literal *node = new t_ast_node_literal;
+		node->type = t_ast_node_type::AST_NODE_TYPE_LITERAL;
+		node->valueType = "bool";
+		node->boolValue = m_currentToken->type == TOKEN_TYPE_TRUE;
+		advanceToken();
+		return node;
+	}
     else if (m_currentToken->type == TOKEN_TYPE_LPAREN)
     {
         advanceToken();
@@ -184,6 +193,10 @@ t_ast_node *Parser::parseAssignStatement()
     {
         varType = "string";
     }
+	else if (m_currentToken->type == TOKEN_TYPE_BOOL)
+	{
+		varType = "bool";
+	}
     else
     {
         Logger::getInstance().log(LogLevel::ERROR, "Invalid variable type in assignment");

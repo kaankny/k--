@@ -31,6 +31,7 @@ typedef struct s_ast_node_literal : public s_ast_node
 	int intValue;
 	std::string stringValue;
 	std::string valueType; // "int", "string"	
+	bool boolValue;
 }   t_ast_node_literal;
 
 typedef struct s_ast_node_variable : public s_ast_node

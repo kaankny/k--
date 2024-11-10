@@ -37,6 +37,10 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
             {
                 return Value(literalNode->stringValue);
             }
+			else if (literalNode->valueType == "bool")
+			{
+				return Value(literalNode->boolValue);
+			}
             else
             {
                 Logger::getInstance().log(LogLevel::ERROR, "Unknown literal type");

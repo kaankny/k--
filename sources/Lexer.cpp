@@ -59,9 +59,56 @@ bool Lexer::getNextToken()
 		case ')':
 			this->m_token.type = TOKEN_TYPE_RPAREN;
 			break;
+
 		case '=':
-			this->m_token.type = TOKEN_TYPE_EQUAL;
+			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '=')
+			{
+				this->m_token.type = TOKEN_TYPE_EQUALITY;
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			else
+			{
+				this->m_token.type = TOKEN_TYPE_EQUAL;
+			}
 			break;
+		case '!':
+			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '=')
+			{
+				this->m_token.type = TOKEN_TYPE_INEQUALITY;
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			else
+			{
+				this->m_token.type = TOKEN_TYPE_EXCLAMATION;
+			}
+			break;
+		case '<':
+			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '=')
+			{
+				this->m_token.type = TOKEN_TYPE_LESS_EQUAL;
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			else
+			{
+				this->m_token.type = TOKEN_TYPE_LESS;
+			}
+			break;
+		case '>':
+			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '=')
+			{
+				this->m_token.type = TOKEN_TYPE_GREATER_EQUAL;
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			else
+			{
+				this->m_token.type = TOKEN_TYPE_GREATER;
+			}
+			break;
+
 		case '0' ... '9':
 			this->m_token.type = TOKEN_TYPE_INTLIT;
 			this->m_token.intValue = 0;
@@ -114,6 +161,18 @@ bool Lexer::getNextToken()
 				case 's':
 					if (this->m_token.identifier == "string")
 						this->m_token.type = TOKEN_TYPE_STRING;
+					break;
+				case 'b':
+					if (this->m_token.identifier == "bool")
+						this->m_token.type = TOKEN_TYPE_BOOL;
+					break;
+				case 't':
+					if (this->m_token.identifier == "true")
+						this->m_token.type = TOKEN_TYPE_TRUE;
+					break;
+				case 'f':
+					if (this->m_token.identifier == "false")
+						this->m_token.type = TOKEN_TYPE_FALSE;
 					break;
 				default:
 					break;

@@ -23,6 +23,9 @@ typedef enum e_token_type
 	TOKEN_TYPE_GREATER, // >
 	TOKEN_TYPE_GREATER_EQUAL, // >=
 
+	TOKEN_TYPE_AND, // &&
+	TOKEN_TYPE_OR, // ||
+
 	TOKEN_TYPE_INTLIT, // Integer literal
 	TOKEN_TYPE_CHARLIT, // Character literal
 	TOKEN_TYPE_STRINGLIT, // String literal
@@ -36,6 +39,7 @@ typedef enum e_token_type
 	TOKEN_TYPE_WRITELN, // writeln
 	TOKEN_TYPE_READ, // read
 	
+	TOKEN_TYPE_AUTO, // auto
 	TOKEN_TYPE_INT, // int
 	TOKEN_TYPE_CHAR, // char
 	TOKEN_TYPE_STRING, // string

@@ -139,6 +139,8 @@ bool Lexer::getNextToken()
 				case 'a':
 					if (this->m_token.identifier == "assign")
 						this->m_token.type = TOKEN_TYPE_ASSIGN;
+					else if (this->m_token.identifier == "auto")
+						this->m_token.type = TOKEN_TYPE_AUTO;
 					break;
 				case 'w':
 					if (this->m_token.identifier == "write")

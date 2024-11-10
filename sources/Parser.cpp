@@ -197,6 +197,10 @@ t_ast_node *Parser::parseAssignStatement()
 	{
 		varType = "bool";
 	}
+	else if (m_currentToken->type == TOKEN_TYPE_AUTO)
+	{
+		varType = "auto";
+	}
     else
     {
         Logger::getInstance().log(LogLevel::ERROR, "Invalid variable type in assignment");

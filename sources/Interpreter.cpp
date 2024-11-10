@@ -172,8 +172,8 @@ void Interpreter::interpretAssignStatement(t_ast_node_assign *node)
 
     Value value = evaluateExpression(node->expr);
 
-	// if (node->varType == "auto")
-	// 	node->varType = value.valueType;
+	if (node->varType == "auto")
+		node->varType = value.valueType;
 	if (node->varType == "")
 	{
 		std::string varType = context.getVariableType(node->varName);

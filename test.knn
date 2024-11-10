@@ -1,4 +1,4 @@
-assign int i;
+assign auto i;
 i = 2;
 assign int k = i + 2;
 writeln(k);

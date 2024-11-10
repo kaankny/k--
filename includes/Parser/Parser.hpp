@@ -36,7 +36,12 @@ class Parser
 		t_ast_node *parseVariableAssign();
 		t_ast_node *parseComparison();
 
+		t_ast_node *parseIfStatement();
+		std::vector<t_ast_node *> parseBlock();
+
 		t_ast_node *parseLogicalAnd();
 		t_ast_node *parseLogicalOr();
-	
+
+		t_ast_node *parseAdditive();
+		t_ast_node *parseMultiplicative();
 };

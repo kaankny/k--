@@ -1,4 +1,23 @@
-13 -6+  4*
-5
-       +
-08 / 3
+if (x > 10)
+{
+	assign int deneme = 13
+	if (deneme == 13)
+	{
+		writeln("deneme 13")
+	}
+	else
+	{
+		writeln("deneme 12")
+		writeln("kaan")
+	}
+	endif;
+}
+elseif (x < 5)
+{
+    writeln("x is less than 5")
+}
+else
+{
+    writeln("x is between 5 and 10")
+}
+endif;

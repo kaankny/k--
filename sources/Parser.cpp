@@ -38,6 +38,8 @@ t_ast_node *Parser::parseStatement()
             return parseWriteStatement();
         case TOKEN_TYPE_IDENTIFIER: // Değişken adı ile başlıyorsa atama olarak yorumlanır
             return parseVariableAssign();
+		case TOKEN_TYPE_IF:
+			return parseIfStatement();
         default:
             std::cout << "Invalid statement type: " << m_currentToken->type << std::endl;
             Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_STATEMENT(m_currentToken->type));
@@ -45,6 +47,130 @@ t_ast_node *Parser::parseStatement()
     }
     return nullptr;
 }
+
+t_ast_node *Parser::parseIfStatement()
+{
+    // Parse the initial `if` condition
+    advanceToken(); // Assume current token is "if"
+    if (m_currentToken->type != TOKEN_TYPE_LPAREN)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected '(' after 'if'");
+        exit(1);
+    }
+    advanceToken();
+
+    // Parse the condition expression
+    t_ast_node *condition = parseComparison();
+
+    if (m_currentToken->type != TOKEN_TYPE_RPAREN)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected ')' after condition in 'if' statement");
+        exit(1);
+    }
+    advanceToken();
+
+    // Parse the `if` body within `{}` braces
+    std::vector<t_ast_node *> ifBody = parseBlock();
+
+    // Parse `elif` blocks if present
+    std::vector<std::pair<t_ast_node *, std::vector<t_ast_node *>>> elifBodies;
+    while (m_currentToken->type == TOKEN_TYPE_ELSE_IF)
+    {
+        advanceToken();
+        if (m_currentToken->type != TOKEN_TYPE_LPAREN)
+        {
+            Logger::getInstance().log(LogLevel::ERROR, "Expected '(' after 'elif'");
+            exit(1);
+        }
+        advanceToken();
+
+        t_ast_node *elifCondition = parseComparison();
+        if (m_currentToken->type != TOKEN_TYPE_RPAREN)
+        {
+            Logger::getInstance().log(LogLevel::ERROR, "Expected ')' after condition in 'elif' statement");
+            exit(1);
+        }
+        advanceToken();
+
+        std::vector<t_ast_node *> elifBody = parseBlock();
+        elifBodies.push_back(std::make_pair(elifCondition, elifBody));
+    }
+
+    // Parse the `else` block if present
+    std::vector<t_ast_node *> elseBody;
+    if (m_currentToken->type == TOKEN_TYPE_ELSE)
+    {
+        advanceToken();
+        elseBody = parseBlock();
+    }
+
+    if (m_currentToken->type != TOKEN_TYPE_ENDIF)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Expected 'endif;' after if-else statement");
+		exit(1);
+	}
+	advanceToken(); // Move past `endif`
+
+	// Expect a semicolon after `endif`
+	if (m_currentToken->type == TOKEN_TYPE_SEMICOLON)
+	{
+		advanceToken(); // Skip the semicolon
+	}
+	else
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Expected ';' after 'endif'");
+		exit(1);
+	}
+
+
+	
+
+    // Create and return the if-elif-else node
+    t_ast_node_if *ifNode = new t_ast_node_if;
+    ifNode->type = t_ast_node_type::AST_NODE_TYPE_IF;
+    ifNode->condition = condition;
+    ifNode->ifBody = ifBody;
+    ifNode->elifBodies = elifBodies;
+    ifNode->elseBody = elseBody;
+
+    return ifNode;
+}
+
+std::vector<t_ast_node *> Parser::parseBlock()
+{
+    std::vector<t_ast_node *> blockStatements;
+
+    // Expect `{` to start the block
+    if (m_currentToken->type != TOKEN_TYPE_LBRACE)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected '{' to start block");
+        exit(1);
+    }
+    advanceToken();
+
+    // Parse statements until `}` is encountered
+    while (m_currentToken->type != TOKEN_TYPE_RBRACE)
+    {
+		t_ast_node *stmt = parseStatement();
+		if (stmt)
+			blockStatements.push_back(stmt);
+		if (Lexer::getInstance().getNextToken())
+		{
+			m_currentToken = Lexer::getInstance().getToken();
+		}
+		else
+		{
+			Logger::getInstance().log(LogLevel::ERROR, MSG_TOKEN_NOT_FOUND);
+			exit(1);
+		}
+    }
+
+    // Move past `}`
+    advanceToken();
+
+    return blockStatements;
+}
+
 
 t_ast_node *Parser::parseVariableAssign()
 {
@@ -260,6 +386,7 @@ t_ast_node *Parser::parseAssignStatement()
         advanceToken();
         exprNode = parseComparison(); // İfade varsa çözümlenir
     }
+
 
     // Atama AST düğümünü oluştur
     t_ast_node_assign *assignNode = new t_ast_node_assign;

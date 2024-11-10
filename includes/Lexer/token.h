@@ -12,6 +12,8 @@ typedef enum e_token_type
 	TOKEN_TYPE_SLASH, // /
 	TOKEN_TYPE_LPAREN, // (
 	TOKEN_TYPE_RPAREN, // )
+	TOKEN_TYPE_LBRACE, // {
+	TOKEN_TYPE_RBRACE, // }
 	TOKEN_TYPE_SEMICOLON, // ;
 	TOKEN_TYPE_EQUAL, // =
 	TOKEN_TYPE_EXCLAMATION, // !
@@ -38,6 +40,11 @@ typedef enum e_token_type
 	TOKEN_TYPE_WRITE, // write
 	TOKEN_TYPE_WRITELN, // writeln
 	TOKEN_TYPE_READ, // read
+
+	TOKEN_TYPE_IF, // if
+	TOKEN_TYPE_ELSE_IF, // elseif
+	TOKEN_TYPE_ELSE, // else
+	TOKEN_TYPE_ENDIF, // endif
 	
 	TOKEN_TYPE_AUTO, // auto
 	TOKEN_TYPE_INT, // int

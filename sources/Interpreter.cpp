@@ -16,10 +16,48 @@ void Interpreter::interpret(std::vector<t_ast_node *> ast)
 			case t_ast_node_type::AST_NODE_TYPE_WRITE:
 				interpretWriteStatement((t_ast_node_write *)node);
 				break;
+			case t_ast_node_type::AST_NODE_TYPE_IF:
+				interpretIfStatement((t_ast_node_if *)node);
+				break;
 			default:
 				Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE((int)node->type));
 				exit(1);
 		}
+	}
+}
+
+void Interpreter::interpretIfStatement(t_ast_node_if *node)
+{
+	Value conditionValue = evaluateExpression(node->condition);
+	if (conditionValue.valueType != "bool")
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "If statement condition must be a boolean expression");
+		exit(1);
+	}
+
+	if (conditionValue.boolValue)
+	{
+		interpret(node->ifBody);
+	}
+	else
+	{
+		for (auto elif : node->elifBodies)
+		{
+			Value elifConditionValue = evaluateExpression(elif.first);
+			if (elifConditionValue.valueType != "bool")
+			{
+				Logger::getInstance().log(LogLevel::ERROR, "Elif statement condition must be a boolean expression");
+				exit(1);
+			}
+
+			if (elifConditionValue.boolValue)
+			{
+				interpret(elif.second);
+				return;
+			}
+		}
+
+		interpret(node->elseBody);
 	}
 }
 
@@ -175,6 +213,7 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 				}
 				else
 				{
+					std::cout << leftValue.valueType << " " << rightValue.valueType << std::endl;
 					Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '||' operation");
 					exit(1);
 				}

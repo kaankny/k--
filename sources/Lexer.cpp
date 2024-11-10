@@ -59,6 +59,12 @@ bool Lexer::getNextToken()
 		case ')':
 			this->m_token.type = TOKEN_TYPE_RPAREN;
 			break;
+		case '{':
+			this->m_token.type = TOKEN_TYPE_LBRACE;
+			break;
+		case '}':
+			this->m_token.type = TOKEN_TYPE_RBRACE;
+			break;
 		case '&':
 			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '&')
 			{
@@ -180,6 +186,8 @@ bool Lexer::getNextToken()
 				case 'i':
 					if (this->m_token.identifier == "int")
 						this->m_token.type = TOKEN_TYPE_INT;
+					else if (this->m_token.identifier == "if")
+						this->m_token.type = TOKEN_TYPE_IF;
 					break;
 				case 'c':
 					if (this->m_token.identifier == "char")
@@ -200,6 +208,14 @@ bool Lexer::getNextToken()
 				case 'f':
 					if (this->m_token.identifier == "false")
 						this->m_token.type = TOKEN_TYPE_FALSE;
+					break;
+				case 'e':
+					if (this->m_token.identifier == "else")
+						this->m_token.type = TOKEN_TYPE_ELSE;
+					else if (this->m_token.identifier == "elseif")
+						this->m_token.type = TOKEN_TYPE_ELSE_IF;
+					else if (this->m_token.identifier == "endif")
+						this->m_token.type = TOKEN_TYPE_ENDIF;
 					break;
 				default:
 					break;

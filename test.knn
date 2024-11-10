@@ -1,2 +1,15 @@
-assign bool test = (2 == 2) || (2 == 2);
-writeln(test);
+assign int x = 6;
+if ((x > 10) || (x == 5))
+{
+	writeln("deneme 12");
+	writeln("kaan");
+}
+elseif (x < 5)
+{
+    writeln("x is less than 5");
+}
+else
+{
+    writeln("x is between 5 and 10");
+}
+endif;

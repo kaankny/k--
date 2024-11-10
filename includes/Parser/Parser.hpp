@@ -34,5 +34,9 @@ class Parser
 		t_ast_node *parseWriteStatement();
 		t_ast_node *parseStatement();
 		t_ast_node *parseVariableAssign();
+		t_ast_node *parseComparison();
+
+		t_ast_node *parseLogicalAnd();
+		t_ast_node *parseLogicalOr();
 	
 };

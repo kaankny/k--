@@ -1,4 +1,2 @@
-assign auto i;
-i = 2;
-assign int k = i + 2;
-writeln(k);
+assign bool test = (2 == 2) || (2 == 2);
+writeln(test);

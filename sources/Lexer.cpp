@@ -59,7 +59,32 @@ bool Lexer::getNextToken()
 		case ')':
 			this->m_token.type = TOKEN_TYPE_RPAREN;
 			break;
-
+		case '&':
+			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '&')
+			{
+				this->m_token.type = TOKEN_TYPE_AND;
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			else
+			{
+				Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_CHARACTER(currentChar, this->m_currentLine, this->m_currentColumn));
+				exit(1);
+			}
+			break;
+		case '|':
+			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '|')
+			{
+				this->m_token.type = TOKEN_TYPE_OR;
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			else
+			{
+				Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_CHARACTER(currentChar, this->m_currentLine, this->m_currentColumn));
+				exit(1);
+			}
+			break;
 		case '=':
 			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '=')
 			{

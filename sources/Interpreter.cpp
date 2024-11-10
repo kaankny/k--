@@ -2,6 +2,7 @@
 #include "../includes/Logger.hpp"
 #include "../includes/messages.h"
 #include "../includes/Parser/ast.h"
+#include "../includes/Lexer/token.h"
 
 void Interpreter::interpret(std::vector<t_ast_node *> ast)
 {
@@ -76,6 +77,14 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 				{
 					return Value(std::to_string(leftValue.intValue) + rightValue.stringValue);
 				}
+				else if (leftValue.valueType == "string" && rightValue.valueType == "bool")
+				{
+					return Value(leftValue.stringValue + (rightValue.boolValue ? "true" : "false"));
+				}
+				else if (leftValue.valueType == "bool" && rightValue.valueType == "string")
+				{
+					return Value((leftValue.boolValue ? "true" : "false") + rightValue.stringValue);
+				}
                 else
                 {
                     Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '+' operation");
@@ -146,6 +155,55 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 				Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '/' operation");
 				exit(1);
 			}
+			else if (exprNode->op == '&') // for &&
+			{
+				if (leftValue.valueType == "bool" && rightValue.valueType == "bool")
+				{
+					return Value(leftValue.boolValue && rightValue.boolValue);
+				}
+				else
+				{
+					Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '&&' operation");
+					exit(1);
+				}
+			}
+			else if (exprNode->op == '|') // for ||
+			{
+				if (leftValue.valueType == "bool" && rightValue.valueType == "bool")
+				{
+					return Value(leftValue.boolValue || rightValue.boolValue);
+				}
+				else
+				{
+					Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '||' operation");
+					exit(1);
+				}
+			}
+			else if (exprNode->op == TOKEN_TYPE_EQUALITY) // for ==
+			{
+				return Value(leftValue.intValue == rightValue.intValue);
+			}
+			else if (exprNode->op == TOKEN_TYPE_INEQUALITY) // for !=
+			{
+				return Value(leftValue.intValue != rightValue.intValue);
+			}
+			else if (exprNode->op == TOKEN_TYPE_LESS_EQUAL) // for <=
+			{
+				return Value(leftValue.intValue <= rightValue.intValue);
+			}
+			else if (exprNode->op == TOKEN_TYPE_GREATER_EQUAL) // for >=
+			{
+				return Value(leftValue.intValue >= rightValue.intValue);
+			}
+			else if (exprNode->op == TOKEN_TYPE_LESS) // for <
+			{
+				return Value(leftValue.intValue < rightValue.intValue);
+			}
+			else if (exprNode->op == TOKEN_TYPE_GREATER) // for >
+			{
+				return Value(leftValue.intValue > rightValue.intValue);
+			}
+
             else
             {
                 Logger::getInstance().log(LogLevel::ERROR, "Unsupported operator: " + std::string(1, exprNode->op));

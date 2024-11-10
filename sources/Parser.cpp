@@ -64,7 +64,7 @@ t_ast_node *Parser::parseVariableAssign()
     }
 
     // İfadeyi çözümle
-    t_ast_node *exprNode = parseExpression();
+    t_ast_node *exprNode = parseComparison();
 
     // Atama AST düğümünü oluştur
     t_ast_node_assign *assignNode = new t_ast_node_assign;
@@ -75,15 +75,47 @@ t_ast_node *Parser::parseVariableAssign()
     return assignNode;
 }
 
+t_ast_node *Parser::parseComparison()
+{
+    t_ast_node *node = parseExpression();
 
+    while (m_currentToken->type == TOKEN_TYPE_EQUALITY || m_currentToken->type == TOKEN_TYPE_INEQUALITY ||
+           m_currentToken->type == TOKEN_TYPE_LESS_EQUAL || m_currentToken->type == TOKEN_TYPE_GREATER_EQUAL ||
+           m_currentToken->type == TOKEN_TYPE_LESS || m_currentToken->type == TOKEN_TYPE_GREATER)
+    {
+        int op = m_currentToken->type;
+        advanceToken();
+        t_ast_node *rightNode = parseExpression();
+
+        t_ast_node_expr *newNode = new t_ast_node_expr;
+        newNode->type = t_ast_node_type::AST_NODE_TYPE_EXPR;
+        newNode->left = node;
+        newNode->op = op;
+        newNode->right = rightNode;
+
+        node = newNode;
+    }
+
+    return node;
+}
 
 t_ast_node *Parser::parseExpression()
 {
     t_ast_node *node = parseTerm();
 
-    while (m_currentToken->type == TOKEN_TYPE_PLUS || m_currentToken->type == TOKEN_TYPE_MINUS)
+    while (m_currentToken->type == TOKEN_TYPE_PLUS || m_currentToken->type == TOKEN_TYPE_MINUS ||
+           m_currentToken->type == TOKEN_TYPE_AND || m_currentToken->type == TOKEN_TYPE_OR)
     {
-        char op = (m_currentToken->type == TOKEN_TYPE_PLUS) ? '+' : '-';
+        char op;
+        if (m_currentToken->type == TOKEN_TYPE_PLUS)
+            op = '+';
+        else if (m_currentToken->type == TOKEN_TYPE_MINUS)
+            op = '-';
+        else if (m_currentToken->type == TOKEN_TYPE_AND)
+            op = '&';
+        else
+            op = '|';
+
         advanceToken();
         t_ast_node *rightNode = parseTerm();
 
@@ -98,6 +130,7 @@ t_ast_node *Parser::parseExpression()
 
     return node;
 }
+
 
 
 
@@ -160,7 +193,7 @@ t_ast_node *Parser::parseFactor()
     else if (m_currentToken->type == TOKEN_TYPE_LPAREN)
     {
         advanceToken();
-        t_ast_node *node = parseExpression();
+        t_ast_node *node = parseComparison();
         if (m_currentToken->type != TOKEN_TYPE_RPAREN)
         {
             Logger::getInstance().log(LogLevel::ERROR, MSG_EXPECTED_RPAREN);
@@ -225,7 +258,7 @@ t_ast_node *Parser::parseAssignStatement()
     if (m_currentToken->type == TOKEN_TYPE_EQUAL)
     {
         advanceToken();
-        exprNode = parseExpression(); // İfade varsa çözümlenir
+        exprNode = parseComparison(); // İfade varsa çözümlenir
     }
 
     // Atama AST düğümünü oluştur
@@ -237,9 +270,6 @@ t_ast_node *Parser::parseAssignStatement()
 
     return assignNode;
 }
-
-
-
 
 
 t_ast_node *Parser::parseWriteStatement()
@@ -255,7 +285,7 @@ t_ast_node *Parser::parseWriteStatement()
 
 	advanceToken();
 
-	t_ast_node *exprNode = parseExpression();
+	t_ast_node *exprNode = parseComparison();
 
 	if (m_currentToken->type != TOKEN_TYPE_RPAREN)
 	{

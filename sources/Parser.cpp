@@ -42,6 +42,10 @@ t_ast_node *Parser::parseStatement()
 			return parseIfStatement();
 		case TOKEN_TYPE_WHILE:
 			return parseWhileStatement();
+		case TOKEN_TYPE_FOR:
+			return parseForStatement();
+		case TOKEN_TYPE_READ:
+			return parseReadStatement();
         default:
             std::cout << "Invalid statement type: " << m_currentToken->type << std::endl;
             Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_STATEMENT(m_currentToken->type));
@@ -49,6 +53,123 @@ t_ast_node *Parser::parseStatement()
     }
     return nullptr;
 }
+
+t_ast_node *Parser::parseReadStatement()
+{
+    advanceToken(); // `read` anahtar kelimesini geç
+
+    if (m_currentToken->type != TOKEN_TYPE_LPAREN)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected '(' after 'read'");
+        exit(1);
+    }
+    advanceToken();
+
+    // Değişken adını al
+    if (m_currentToken->type != TOKEN_TYPE_IDENTIFIER)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected variable name in 'read' statement");
+        exit(1);
+    }
+
+    std::string varName = m_currentToken->identifier;
+    advanceToken();
+
+    if (m_currentToken->type != TOKEN_TYPE_RPAREN)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected ')' after variable name in 'read' statement");
+        exit(1);
+    }
+    advanceToken();
+
+    // `read` AST düğümünü oluştur
+    t_ast_node_read *readNode = new t_ast_node_read;
+    readNode->type = t_ast_node_type::AST_NODE_TYPE_READ;
+    readNode->varName = varName;
+
+    return readNode;
+}
+
+
+t_ast_node *Parser::parseForStatement()
+{
+    advanceToken();  // `for` anahtar kelimesini geçin
+
+    if (m_currentToken->type != TOKEN_TYPE_LPAREN)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected '(' after 'for'");
+        exit(1);
+    }
+    advanceToken();
+
+    // Başlangıç ifadesini ayrıştırın (örneğin, `int i = 0` veya `;` ise boş geçin)
+    t_ast_node *init = nullptr;
+    if (m_currentToken->type != TOKEN_TYPE_SEMICOLON)
+    {
+		if (m_currentToken->type == TOKEN_TYPE_ASSIGN)
+			init = parseAssignStatement();
+		else
+			init = parseVariableAssign();
+    }
+    
+    if (m_currentToken->type != TOKEN_TYPE_SEMICOLON)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected ';' after initialization in 'for' statement");
+        exit(1);
+    }
+    advanceToken();
+
+    // Koşul ifadesini ayrıştırın (örneğin, `i < 10` veya boş bırakılabilir)
+    t_ast_node *condition = nullptr;
+    if (m_currentToken->type != TOKEN_TYPE_SEMICOLON)
+    {
+        condition = parseComparison();
+    }
+
+    if (m_currentToken->type != TOKEN_TYPE_SEMICOLON)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected ';' after condition in 'for' statement");
+        exit(1);
+    }
+    advanceToken();
+
+    // Artış/azalış ifadesini ayrıştırın (örneğin, `i++` veya boş bırakılabilir)
+    t_ast_node *increment = nullptr;
+    if (m_currentToken->type != TOKEN_TYPE_RPAREN)
+    {
+        increment = parseVariableAssign();
+    }
+
+    if (m_currentToken->type != TOKEN_TYPE_RPAREN)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected ')' after increment in 'for' statement");
+        exit(1);
+    }
+    advanceToken();
+
+    // Döngü gövdesini ayrıştırın
+    std::vector<t_ast_node *> forBody = parseBlock();
+
+	if (m_currentToken->type != TOKEN_TYPE_ENDFOR)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Expected 'endfor;' after for statement");
+		exit(1);
+	}
+
+	advanceToken(); // Move past `endfor`
+
+    // `for` düğümünü oluşturun ve bileşenleri ekleyin
+    t_ast_node_for *forNode = new t_ast_node_for;
+    forNode->type = t_ast_node_type::AST_NODE_TYPE_FOR;
+    forNode->init = init;
+    forNode->condition = condition;
+    forNode->update = increment;
+    forNode->forBody = forBody;
+
+    return forNode;
+}
+
+
 
 t_ast_node *Parser::parseWhileStatement()
 {
@@ -209,6 +330,7 @@ t_ast_node *Parser::parseVariableAssign()
     }
     else
     {
+		std::cout << m_currentToken->type << std::endl;
         Logger::getInstance().log(LogLevel::ERROR, "Expected '=' in assignment");
         exit(1);
     }
@@ -386,6 +508,7 @@ t_ast_node *Parser::parseAssignStatement()
 	}
     else
     {
+		std::cout << "Invalid variable type in assignment: " << m_currentToken->type << std::endl;
         Logger::getInstance().log(LogLevel::ERROR, "Invalid variable type in assignment");
         exit(1);
     }

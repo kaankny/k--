@@ -5,7 +5,8 @@ RM = rm -f
 
 SRC = sources/main.cpp \
 	  sources/Lexer.cpp \
-	  sources/Parser.cpp
+	  sources/Parser.cpp \
+	  sources/Interpreter.cpp \
 
 OBJ = $(SRC:.cpp=.o)
 

@@ -65,6 +65,9 @@ bool Lexer::getNextToken()
 		case '}':
 			this->m_token.type = TOKEN_TYPE_RBRACE;
 			break;
+		case '%':
+			this->m_token.type = TOKEN_TYPE_PERCENT;
+			break;
 		case '&':
 			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '&')
 			{
@@ -210,6 +213,8 @@ bool Lexer::getNextToken()
 				case 'f':
 					if (this->m_token.identifier == "false")
 						this->m_token.type = TOKEN_TYPE_FALSE;
+					else if (this->m_token.identifier == "for")
+						this->m_token.type = TOKEN_TYPE_FOR;
 					break;
 				case 'e':
 					if (this->m_token.identifier == "else")
@@ -220,6 +225,8 @@ bool Lexer::getNextToken()
 						this->m_token.type = TOKEN_TYPE_ENDIF;
 					else if (this->m_token.identifier == "endwhile")
 						this->m_token.type = TOKEN_TYPE_ENDWHILE;
+					else if (this->m_token.identifier == "endfor")
+						this->m_token.type = TOKEN_TYPE_ENDFOR;
 					break;
 				default:
 					break;

@@ -10,8 +10,10 @@ typedef enum class e_ast_node_type
 	AST_NODE_TYPE_VARIABLE,
 	AST_NODE_TYPE_ASSIGN,
 	AST_NODE_TYPE_WRITE,
+	AST_NODE_TYPE_READ,
 	AST_NODE_TYPE_IF,
-	AST_NODE_TYPE_WHILE
+	AST_NODE_TYPE_WHILE,
+	AST_NODE_TYPE_FOR	
 }   t_ast_node_type;
 
 typedef struct s_ast_node
@@ -69,5 +71,18 @@ typedef struct s_ast_node_while : public s_ast_node
 	t_ast_node *condition;
 	std::vector<t_ast_node *> whileBody;
 }	t_ast_node_while;
+
+typedef struct s_ast_node_for : public s_ast_node
+{
+	t_ast_node *init;
+	t_ast_node *condition;
+	t_ast_node *update;
+	std::vector<t_ast_node *> forBody;
+}	t_ast_node_for;
+
+typedef struct s_ast_node_read : public s_ast_node
+{
+	std::string varName;
+}	t_ast_node_read;
 
 #endif

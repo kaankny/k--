@@ -22,12 +22,111 @@ void Interpreter::interpret(std::vector<t_ast_node *> ast)
 			case t_ast_node_type::AST_NODE_TYPE_WHILE:
 				interpretWhileStatement((t_ast_node_while *)node);
 				break;
+			case t_ast_node_type::AST_NODE_TYPE_FOR:
+				interpretForStatement((t_ast_node_for *)node);
+				break;
+			case t_ast_node_type::AST_NODE_TYPE_READ:
+				interpretReadStatement((t_ast_node_read *)node);
+				break;
 			default:
 				Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE((int)node->type));
 				exit(1);
 		}
 	}
 }
+
+void Interpreter::interpretReadStatement(t_ast_node_read *node)
+{
+	std::string varName = node->varName;
+	Value value = context.getVariable(varName);
+	if (value.valueType == "undefined")
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Variable '" + varName + "' is not defined");
+		exit(1);
+	}
+	std::string varType = value.valueType;
+	std::string input;
+	std::cin >> input;
+
+	if (varType == "int")
+	{
+		int intValue;
+		try
+		{
+			intValue = std::stoi(input);
+		}
+		catch (const std::invalid_argument &e)
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for integer variable '" + varName + "'");
+			exit(1);
+		}
+		context.setVariable(varName, Value(intValue));
+	}
+	else if (varType == "string")
+	{
+		context.setVariable(varName, Value(input));
+	}
+	else if (varType == "bool")
+	{
+		if (input == "true")
+		{
+			context.setVariable(varName, Value(true));
+		}
+		else if (input == "false")
+		{
+			context.setVariable(varName, Value(false));
+		}
+		else
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for boolean variable '" + varName + "'");
+			exit(1);
+		}
+	}
+	else
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Invalid variable type in read statement");
+		exit(1);
+	}
+}
+
+void Interpreter::interpretForStatement(t_ast_node_for *node)
+{
+    // Başlangıç ifadesini kontrol et ve yorumla (eğer varsa)
+    if (node->init != nullptr)
+    {
+        interpretAssignStatement((t_ast_node_assign *)node->init);
+    }
+
+    while (true)
+    {
+        // Koşul ifadesini kontrol et ve yorumla (eğer varsa)
+        if (node->condition != nullptr)
+        {
+            Value conditionValue = evaluateExpression(node->condition);
+            if (conditionValue.valueType != "bool")
+            {
+                Logger::getInstance().log(LogLevel::ERROR, "For statement condition must be a boolean expression");
+                exit(1);
+            }
+
+            // Koşul false ise döngüyü kır
+            if (!conditionValue.boolValue)
+            {
+                break;
+            }
+        }
+
+        // Döngü gövdesini yorumla
+        interpret(node->forBody);
+
+        // Artış/azalış ifadesini kontrol et ve yorumla (eğer varsa)
+        if (node->update != nullptr)
+        {
+            interpretAssignStatement((t_ast_node_assign *)node->update);
+        }
+    }
+}
+
 
 void Interpreter::interpretWhileStatement(t_ast_node_while *node)
 {

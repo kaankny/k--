@@ -100,3 +100,9 @@ t_ast_node_assign
 function add(a: int, b: int) -> int {
     return a + b;
 }
+
+while time elapsed less than 1000ms do
+{
+    writeln("Looping...");
+}
+endwhile;

@@ -32,12 +32,15 @@ class Parser
 		t_ast_node *parseFactor();
 		t_ast_node *parseAssignStatement();
 		t_ast_node *parseWriteStatement();
+		t_ast_node *parseReadStatement();
 		t_ast_node *parseStatement();
 		t_ast_node *parseVariableAssign();
 		t_ast_node *parseComparison();
 
+
 		t_ast_node *parseIfStatement();
 		t_ast_node *parseWhileStatement();
+		t_ast_node *parseForStatement();
 		std::vector<t_ast_node *> parseBlock();
 
 		t_ast_node *parseLogicalAnd();

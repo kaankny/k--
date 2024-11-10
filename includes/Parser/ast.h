@@ -10,7 +10,8 @@ typedef enum class e_ast_node_type
 	AST_NODE_TYPE_VARIABLE,
 	AST_NODE_TYPE_ASSIGN,
 	AST_NODE_TYPE_WRITE,
-	AST_NODE_TYPE_IF
+	AST_NODE_TYPE_IF,
+	AST_NODE_TYPE_WHILE
 }   t_ast_node_type;
 
 typedef struct s_ast_node
@@ -62,5 +63,11 @@ typedef struct s_ast_node_if : public s_ast_node
 	std::vector<std::pair<t_ast_node *, std::vector<t_ast_node *>>> elifBodies;
 	std::vector<t_ast_node *> elseBody;
 }   t_ast_node_if;
+
+typedef struct s_ast_node_while : public s_ast_node
+{
+	t_ast_node *condition;
+	std::vector<t_ast_node *> whileBody;
+}	t_ast_node_while;
 
 #endif

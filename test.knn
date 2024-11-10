@@ -1,15 +1,11 @@
-assign int x = 6;
-if ((x > 10) || (x == 5))
+assign int i = 0;
+assign bool check = true;
+while (check)
 {
-	writeln("deneme 12");
-	writeln("kaan");
+	writeln("i: " + i);
+	i = i + 1;
+	check = i < 5;
 }
-elseif (x < 5)
-{
-    writeln("x is less than 5");
-}
-else
-{
-    writeln("x is between 5 and 10");
-}
-endif;
+endwhile;
+writeln("dongu bitti");
+

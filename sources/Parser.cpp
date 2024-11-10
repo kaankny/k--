@@ -40,12 +40,50 @@ t_ast_node *Parser::parseStatement()
             return parseVariableAssign();
 		case TOKEN_TYPE_IF:
 			return parseIfStatement();
+		case TOKEN_TYPE_WHILE:
+			return parseWhileStatement();
         default:
             std::cout << "Invalid statement type: " << m_currentToken->type << std::endl;
             Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_STATEMENT(m_currentToken->type));
             exit(1);
     }
     return nullptr;
+}
+
+t_ast_node *Parser::parseWhileStatement()
+{
+	advanceToken(); // Assume current token is "while"
+	if (m_currentToken->type != TOKEN_TYPE_LPAREN)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Expected '(' after 'while'");
+		exit(1);
+	}
+	advanceToken();
+
+	t_ast_node *condition = parseComparison();
+
+	if (m_currentToken->type != TOKEN_TYPE_RPAREN)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Expected ')' after condition in 'while' statement");
+		exit(1);
+	}
+	advanceToken();
+
+	std::vector<t_ast_node *> whileBody = parseBlock();
+
+	if (m_currentToken->type != TOKEN_TYPE_ENDWHILE)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Expected 'endwhile;' after while statement");
+		exit(1);
+	}
+	advanceToken(); // Move past `endwhile`
+
+	t_ast_node_while *whileNode = new t_ast_node_while;
+	whileNode->type = t_ast_node_type::AST_NODE_TYPE_WHILE;
+	whileNode->condition = condition;
+	whileNode->whileBody = whileBody;
+
+	return whileNode;
 }
 
 t_ast_node *Parser::parseIfStatement()
@@ -110,20 +148,6 @@ t_ast_node *Parser::parseIfStatement()
 		exit(1);
 	}
 	advanceToken(); // Move past `endif`
-
-	// Expect a semicolon after `endif`
-	if (m_currentToken->type == TOKEN_TYPE_SEMICOLON)
-	{
-		advanceToken(); // Skip the semicolon
-	}
-	else
-	{
-		Logger::getInstance().log(LogLevel::ERROR, "Expected ';' after 'endif'");
-		exit(1);
-	}
-
-
-	
 
     // Create and return the if-elif-else node
     t_ast_node_if *ifNode = new t_ast_node_if;

@@ -19,10 +19,33 @@ void Interpreter::interpret(std::vector<t_ast_node *> ast)
 			case t_ast_node_type::AST_NODE_TYPE_IF:
 				interpretIfStatement((t_ast_node_if *)node);
 				break;
+			case t_ast_node_type::AST_NODE_TYPE_WHILE:
+				interpretWhileStatement((t_ast_node_while *)node);
+				break;
 			default:
 				Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE((int)node->type));
 				exit(1);
 		}
+	}
+}
+
+void Interpreter::interpretWhileStatement(t_ast_node_while *node)
+{
+	while (true)
+	{
+		Value conditionValue = evaluateExpression(node->condition);
+		if (conditionValue.valueType != "bool")
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "While statement condition must be a boolean expression");
+			exit(1);
+		}
+
+		if (!conditionValue.boolValue)
+		{
+			break;
+		}
+
+		interpret(node->whileBody);
 	}
 }
 

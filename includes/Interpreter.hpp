@@ -28,6 +28,7 @@ class Interpreter
 		void interpretAssignStatement(t_ast_node_assign *node);
 		void interpretWriteStatement(t_ast_node_write *node);
 		void interpretIfStatement(t_ast_node_if *node);
+		void interpretWhileStatement(t_ast_node_while *node);
 
 		Value evaluateExpression(t_ast_node *node);
 		std::string evaluateStringExpression(t_ast_node *node);

@@ -178,6 +178,8 @@ bool Lexer::getNextToken()
 						this->m_token.type = TOKEN_TYPE_WRITE;
 					else if (this->m_token.identifier == "writeln")
 						this->m_token.type = TOKEN_TYPE_WRITELN;
+					else if (this->m_token.identifier == "while")
+						this->m_token.type = TOKEN_TYPE_WHILE;
 					break;
 				case 'r':
 					if (this->m_token.identifier == "read")
@@ -216,6 +218,8 @@ bool Lexer::getNextToken()
 						this->m_token.type = TOKEN_TYPE_ELSE_IF;
 					else if (this->m_token.identifier == "endif")
 						this->m_token.type = TOKEN_TYPE_ENDIF;
+					else if (this->m_token.identifier == "endwhile")
+						this->m_token.type = TOKEN_TYPE_ENDWHILE;
 					break;
 				default:
 					break;

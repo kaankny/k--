@@ -45,6 +45,9 @@ typedef enum e_token_type
 	TOKEN_TYPE_ELSE_IF, // elseif
 	TOKEN_TYPE_ELSE, // else
 	TOKEN_TYPE_ENDIF, // endif
+
+	TOKEN_TYPE_WHILE, // while
+	TOKEN_TYPE_ENDWHILE, // endwhile
 	
 	TOKEN_TYPE_AUTO, // auto
 	TOKEN_TYPE_INT, // int

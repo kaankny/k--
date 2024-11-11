@@ -43,6 +43,8 @@ class Parser
 		t_ast_node *parseForStatement();
 		std::vector<t_ast_node *> parseBlock();
 
+		t_ast_node *parseBreakStatement();
+
 		t_ast_node *parseLogicalAnd();
 		t_ast_node *parseLogicalOr();
 

@@ -42,6 +42,8 @@ typedef enum e_token_type
 	TOKEN_TYPE_WRITELN, // writeln
 	TOKEN_TYPE_READ, // read
 
+	TOKEN_TYPE_BREAK, // break
+
 	TOKEN_TYPE_IF, // if
 	TOKEN_TYPE_ELSE_IF, // elseif
 	TOKEN_TYPE_ELSE, // else

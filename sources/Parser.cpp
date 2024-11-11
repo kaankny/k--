@@ -46,12 +46,24 @@ t_ast_node *Parser::parseStatement()
 			return parseForStatement();
 		case TOKEN_TYPE_READ:
 			return parseReadStatement();
+		case TOKEN_TYPE_BREAK:
+			return parseBreakStatement();
         default:
             std::cout << "Invalid statement type: " << m_currentToken->type << std::endl;
             Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_STATEMENT(m_currentToken->type));
             exit(1);
     }
     return nullptr;
+}
+
+t_ast_node *Parser::parseBreakStatement()
+{
+	advanceToken(); // `break` anahtar kelimesini geç
+
+	t_ast_node_break *breakNode = new t_ast_node_break;
+	breakNode->type = t_ast_node_type::AST_NODE_TYPE_BREAK;
+
+	return breakNode;
 }
 
 t_ast_node *Parser::parseReadStatement()

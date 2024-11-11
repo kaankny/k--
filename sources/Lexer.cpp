@@ -205,6 +205,8 @@ bool Lexer::getNextToken()
 				case 'b':
 					if (this->m_token.identifier == "bool")
 						this->m_token.type = TOKEN_TYPE_BOOL;
+					else if (this->m_token.identifier == "break")
+						this->m_token.type = TOKEN_TYPE_BREAK;
 					break;
 				case 't':
 					if (this->m_token.identifier == "true")

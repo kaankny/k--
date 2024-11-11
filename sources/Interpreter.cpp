@@ -28,6 +28,8 @@ void Interpreter::interpret(std::vector<t_ast_node *> ast)
 			case t_ast_node_type::AST_NODE_TYPE_READ:
 				interpretReadStatement((t_ast_node_read *)node);
 				break;
+			case t_ast_node_type::AST_NODE_TYPE_BREAK:
+				throw "break";
 			default:
 				Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE((int)node->type));
 				exit(1);
@@ -89,64 +91,64 @@ void Interpreter::interpretReadStatement(t_ast_node_read *node)
 	}
 }
 
-void Interpreter::interpretForStatement(t_ast_node_for *node)
-{
-    // Başlangıç ifadesini kontrol et ve yorumla (eğer varsa)
-    if (node->init != nullptr)
-    {
+void Interpreter::interpretWhileStatement(t_ast_node_while *node) {
+    while (true) {
+        Value conditionValue = evaluateExpression(node->condition);
+        if (conditionValue.valueType != "bool") {
+            Logger::getInstance().log(LogLevel::ERROR, "While statement condition must be a boolean expression");
+            exit(1);
+        }
+
+        if (!conditionValue.boolValue) {
+            break;
+        }
+
+        try {
+            interpret(node->whileBody);
+        } catch (const char *msg) {
+            if (std::string(msg) == "break") {
+                break;  // Break ifadesi yakalanırsa döngüden çık
+            } else {
+                throw;  // Diğer hatalar yeniden fırlatılır
+            }
+        }
+    }
+}
+
+void Interpreter::interpretForStatement(t_ast_node_for *node) {
+    if (node->init != nullptr) {
         interpretAssignStatement((t_ast_node_assign *)node->init);
     }
 
-    while (true)
-    {
-        // Koşul ifadesini kontrol et ve yorumla (eğer varsa)
-        if (node->condition != nullptr)
-        {
+    while (true) {
+        if (node->condition != nullptr) {
             Value conditionValue = evaluateExpression(node->condition);
-            if (conditionValue.valueType != "bool")
-            {
+            if (conditionValue.valueType != "bool") {
                 Logger::getInstance().log(LogLevel::ERROR, "For statement condition must be a boolean expression");
                 exit(1);
             }
 
-            // Koşul false ise döngüyü kır
-            if (!conditionValue.boolValue)
-            {
+            if (!conditionValue.boolValue) {
                 break;
             }
         }
 
-        // Döngü gövdesini yorumla
-        interpret(node->forBody);
+        try {
+            interpret(node->forBody);
+        } catch (const char *msg) {
+            if (std::string(msg) == "break") {
+                break;  // Break ifadesi yakalanırsa döngüden çık
+            } else {
+                throw;  // Diğer hatalar yeniden fırlatılır
+            }
+        }
 
-        // Artış/azalış ifadesini kontrol et ve yorumla (eğer varsa)
-        if (node->update != nullptr)
-        {
+        if (node->update != nullptr) {
             interpretAssignStatement((t_ast_node_assign *)node->update);
         }
     }
 }
 
-
-void Interpreter::interpretWhileStatement(t_ast_node_while *node)
-{
-	while (true)
-	{
-		Value conditionValue = evaluateExpression(node->condition);
-		if (conditionValue.valueType != "bool")
-		{
-			Logger::getInstance().log(LogLevel::ERROR, "While statement condition must be a boolean expression");
-			exit(1);
-		}
-
-		if (!conditionValue.boolValue)
-		{
-			break;
-		}
-
-		interpret(node->whileBody);
-	}
-}
 
 void Interpreter::interpretIfStatement(t_ast_node_if *node)
 {

@@ -13,7 +13,8 @@ typedef enum class e_ast_node_type
 	AST_NODE_TYPE_READ,
 	AST_NODE_TYPE_IF,
 	AST_NODE_TYPE_WHILE,
-	AST_NODE_TYPE_FOR	
+	AST_NODE_TYPE_FOR,
+	AST_NODE_TYPE_BREAK
 }   t_ast_node_type;
 
 typedef struct s_ast_node
@@ -84,5 +85,9 @@ typedef struct s_ast_node_read : public s_ast_node
 {
 	std::string varName;
 }	t_ast_node_read;
+
+typedef struct s_ast_node_break : public s_ast_node
+{
+}	t_ast_node_break;
 
 #endif

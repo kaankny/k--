@@ -45,7 +45,16 @@ bool Lexer::getNextToken()
 			this->m_token.type = TOKEN_TYPE_PLUS;
 			break;
 		case '-':
-			this->m_token.type = TOKEN_TYPE_MINUS;
+			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '>')
+			{
+				this->m_token.type = TOKEN_TYPE_ARROW;
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			else
+			{
+				this->m_token.type = TOKEN_TYPE_MINUS;
+			}
 			break;
 		case '*':
 			this->m_token.type = TOKEN_TYPE_STAR;
@@ -67,6 +76,12 @@ bool Lexer::getNextToken()
 			break;
 		case '%':
 			this->m_token.type = TOKEN_TYPE_PERCENT;
+			break;
+		case ':':
+			this->m_token.type = TOKEN_TYPE_COLON;
+			break;
+		case ',':
+			this->m_token.type = TOKEN_TYPE_COMMA;
 			break;
 		case '&':
 			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex + 1] == '&')
@@ -187,6 +202,8 @@ bool Lexer::getNextToken()
 				case 'r':
 					if (this->m_token.identifier == "read")
 						this->m_token.type = TOKEN_TYPE_READ;
+					else if (this->m_token.identifier == "return")
+						this->m_token.type = TOKEN_TYPE_RETURN;
 					break;
 				case 'i':
 					if (this->m_token.identifier == "int")
@@ -197,6 +214,8 @@ bool Lexer::getNextToken()
 				case 'c':
 					if (this->m_token.identifier == "char")
 						this->m_token.type = TOKEN_TYPE_CHAR;
+					else if (this->m_token.identifier == "call")
+						this->m_token.type = TOKEN_TYPE_CALL;
 					break;
 				case 's':
 					if (this->m_token.identifier == "string")
@@ -217,6 +236,8 @@ bool Lexer::getNextToken()
 						this->m_token.type = TOKEN_TYPE_FALSE;
 					else if (this->m_token.identifier == "for")
 						this->m_token.type = TOKEN_TYPE_FOR;
+					else if (this->m_token.identifier == "function")
+						this->m_token.type = TOKEN_TYPE_FUNCTION;
 					break;
 				case 'e':
 					if (this->m_token.identifier == "else")
@@ -229,6 +250,8 @@ bool Lexer::getNextToken()
 						this->m_token.type = TOKEN_TYPE_ENDWHILE;
 					else if (this->m_token.identifier == "endfor")
 						this->m_token.type = TOKEN_TYPE_ENDFOR;
+					else if (this->m_token.identifier == "endfunction")
+						this->m_token.type = TOKEN_TYPE_ENDFUNCTION;
 					break;
 				default:
 					break;

@@ -45,6 +45,10 @@ class Parser
 
 		t_ast_node *parseBreakStatement();
 
+		t_ast_node *parseFunctionDefinition();
+		t_ast_node *parseFunctionCall();
+		t_ast_node *parseReturnStatement();
+
 		t_ast_node *parseLogicalAnd();
 		t_ast_node *parseLogicalOr();
 

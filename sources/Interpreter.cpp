@@ -28,6 +28,14 @@ void Interpreter::interpret(std::vector<t_ast_node *> ast)
 			case t_ast_node_type::AST_NODE_TYPE_READ:
 				interpretReadStatement((t_ast_node_read *)node);
 				break;
+			case t_ast_node_type::AST_NODE_TYPE_FUNCTION:
+				interpretFunctionDefinition((t_ast_node_function *)node);
+				break;
+			case t_ast_node_type::AST_NODE_TYPE_CALL:
+				interpretFunctionCall((t_ast_node_call *)node);
+				break;
+			case t_ast_node_type::AST_NODE_TYPE_RETURN:
+				throw evaluateExpression(((t_ast_node_return *)node)->returnValue);
 			case t_ast_node_type::AST_NODE_TYPE_BREAK:
 				throw "break";
 			default:
@@ -37,10 +45,66 @@ void Interpreter::interpret(std::vector<t_ast_node *> ast)
 	}
 }
 
+Value Interpreter::interpretFunctionCall(t_ast_node_call *node)
+{
+	if (functions.find(node->functionName) == functions.end()) {
+		Logger::getInstance().log(LogLevel::ERROR, "Function not found: " + node->functionName);
+		exit(1);
+	}
+
+    t_ast_node_function *function = functions[node->functionName];
+
+    if (node->arguments.size() != function->parameters.size()) {
+        Logger::getInstance().log(LogLevel::ERROR, "Argument count mismatch for function: " + node->functionName);
+        exit(1);
+    }
+
+    ScopeManager::getInstance().beginScope(); // Yeni bir kapsam başlat
+
+    // Parametreleri değerlendir ve yerel olarak ata
+    for (size_t i = 0; i < function->parameters.size(); i++) {
+        Value argValue = evaluateExpression(node->arguments[i]);
+         ScopeManager::getInstance().setVariable(function->parameters[i].first, argValue);
+    }
+
+    try {
+        interpret(function->functionBody);
+    } catch (Value returnValue) { // return ifadesinden gelen değeri yakala
+        ScopeManager::getInstance().endScope();
+
+		if (returnValue.valueType == "undefined")
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Undefined return value in function: " + node->functionName);
+			exit(1);
+		}
+		else if (returnValue.valueType != function->returnType)
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Return type mismatch in function: " + node->functionName);
+			exit(1);
+		}
+        return returnValue;
+    }
+
+     ScopeManager::getInstance().endScope();
+
+    return Value(); // Eğer `return` ifadesi yoksa varsayılan olarak boş döndür
+}
+
+
+void Interpreter::interpretFunctionDefinition(t_ast_node_function *node)
+{
+	if (functions.find(node->functionName) != functions.end())
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Function already defined: " + node->functionName);
+		exit(1);
+	}
+	functions[node->functionName] = node;
+}
+
 void Interpreter::interpretReadStatement(t_ast_node_read *node)
 {
 	std::string varName = node->varName;
-	Value value = context.getVariable(varName);
+	Value value =  ScopeManager::getInstance().getVariable(varName);
 	if (value.valueType == "undefined")
 	{
 		Logger::getInstance().log(LogLevel::ERROR, "Variable '" + varName + "' is not defined");
@@ -62,21 +126,21 @@ void Interpreter::interpretReadStatement(t_ast_node_read *node)
 			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for integer variable '" + varName + "'");
 			exit(1);
 		}
-		context.setVariable(varName, Value(intValue));
+		 ScopeManager::getInstance().setVariable(varName, Value(intValue));
 	}
 	else if (varType == "string")
 	{
-		context.setVariable(varName, Value(input));
+		 ScopeManager::getInstance().setVariable(varName, Value(input));
 	}
 	else if (varType == "bool")
 	{
 		if (input == "true")
 		{
-			context.setVariable(varName, Value(true));
+			 ScopeManager::getInstance().setVariable(varName, Value(true));
 		}
 		else if (input == "false")
 		{
-			context.setVariable(varName, Value(false));
+			 ScopeManager::getInstance().setVariable(varName, Value(false));
 		}
 		else
 		{
@@ -213,7 +277,7 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
         case t_ast_node_type::AST_NODE_TYPE_VARIABLE:
         {
             t_ast_node_variable *varNode = static_cast<t_ast_node_variable *>(node);
-            return context.getVariable(varNode->varName);
+            return  ScopeManager::getInstance().getVariable(varNode->varName);
         }
         case t_ast_node_type::AST_NODE_TYPE_EXPR:
         {
@@ -373,7 +437,12 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
                 exit(1);
             }
         }
-        default:
+        case t_ast_node_type::AST_NODE_TYPE_CALL:
+		{
+			return interpretFunctionCall((t_ast_node_call *)node);
+		}
+		default:
+			std::cout << (int)node->type << std::endl;
             Logger::getInstance().log(LogLevel::ERROR, "Unsupported AST node type in expression");
             exit(1);
     }
@@ -387,7 +456,7 @@ void Interpreter::interpretAssignStatement(t_ast_node_assign *node)
 	{
 		Value value = Value();
 		value.valueType = node->varType;
-		context.setVariable(node->varName, value);
+		 ScopeManager::getInstance().setVariable(node->varName, value);
 		return;
 	}
 
@@ -397,7 +466,7 @@ void Interpreter::interpretAssignStatement(t_ast_node_assign *node)
 		node->varType = value.valueType;
 	if (node->varType == "")
 	{
-		std::string varType = context.getVariableType(node->varName);
+		std::string varType =  ScopeManager::getInstance().getVariableType(node->varName);
 		if (varType != value.valueType)
 		{
 			Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in assignment to variable '" + node->varName + "'");
@@ -409,7 +478,7 @@ void Interpreter::interpretAssignStatement(t_ast_node_assign *node)
 
     if (node->varType == value.valueType)
     {
-        context.setVariable(node->varName, value);
+         ScopeManager::getInstance().setVariable(node->varName, value);
     }
     else
     {

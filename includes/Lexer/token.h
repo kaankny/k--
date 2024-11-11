@@ -11,6 +11,9 @@ typedef enum e_token_type
 	TOKEN_TYPE_STAR, // *
 	TOKEN_TYPE_SLASH, // /
 	TOKEN_TYPE_PERCENT, // %
+
+	TOKEN_TYPE_COLON, // :
+	TOKEN_TYPE_COMMA, // ,
 	TOKEN_TYPE_LPAREN, // (
 	TOKEN_TYPE_RPAREN, // )
 	TOKEN_TYPE_LBRACE, // {
@@ -53,6 +56,12 @@ typedef enum e_token_type
 	TOKEN_TYPE_ENDWHILE, // endwhile
 	TOKEN_TYPE_FOR, // for
 	TOKEN_TYPE_ENDFOR, // endfor
+
+	TOKEN_TYPE_FUNCTION, // function
+	TOKEN_TYPE_ENDFUNCTION, // endfunction
+	TOKEN_TYPE_CALL, // call
+	TOKEN_TYPE_RETURN, // return
+	TOKEN_TYPE_ARROW, // ->
 	
 	TOKEN_TYPE_AUTO, // auto
 	TOKEN_TYPE_INT, // int

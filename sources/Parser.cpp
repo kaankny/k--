@@ -48,6 +48,12 @@ t_ast_node *Parser::parseStatement()
 			return parseReadStatement();
 		case TOKEN_TYPE_BREAK:
 			return parseBreakStatement();
+		case TOKEN_TYPE_CALL:
+			return parseFunctionCall();
+		case TOKEN_TYPE_FUNCTION:
+			return parseFunctionDefinition();
+		case TOKEN_TYPE_RETURN:
+			return parseReturnStatement();
         default:
             std::cout << "Invalid statement type: " << m_currentToken->type << std::endl;
             Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_STATEMENT(m_currentToken->type));
@@ -55,6 +61,168 @@ t_ast_node *Parser::parseStatement()
     }
     return nullptr;
 }
+
+t_ast_node *Parser::parseReturnStatement()
+{
+	advanceToken(); // `return` anahtar kelimesini geç
+
+	t_ast_node *expr = parseExpression();
+
+	t_ast_node_return *returnNode = new t_ast_node_return;
+	returnNode->type = t_ast_node_type::AST_NODE_TYPE_RETURN;
+	returnNode->returnValue = expr;
+
+	return returnNode;
+}
+
+t_ast_node *Parser::parseFunctionCall()
+{
+	// call add (1, 2)
+	advanceToken(); // `call` anahtar kelimesini geç
+
+	if (m_currentToken->type != TOKEN_TYPE_IDENTIFIER)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Expected function name after 'call'");
+		exit(1);
+	}
+
+	std::string functionName = m_currentToken->identifier;
+
+	advanceToken();
+
+	if (m_currentToken->type != TOKEN_TYPE_LPAREN)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Expected '(' after function name in 'call' statement");
+		exit(1);
+	}
+
+	advanceToken();
+
+	std::vector<t_ast_node *> arguments;
+	while (m_currentToken->type != TOKEN_TYPE_RPAREN)
+	{
+		t_ast_node *expr = parseExpression();
+		arguments.push_back(expr);
+
+		if (m_currentToken->type == TOKEN_TYPE_COMMA)
+		{
+			advanceToken();
+		}
+		else if (m_currentToken->type != TOKEN_TYPE_RPAREN)
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Expected ',' or ')' in function call arguments");
+			exit(1);
+		}
+	}
+
+	advanceToken();
+
+	t_ast_node_call *callNode = new t_ast_node_call;
+	callNode->type = t_ast_node_type::AST_NODE_TYPE_CALL;
+	callNode->functionName = functionName;
+	callNode->arguments = arguments;
+
+	return callNode;
+}
+
+
+t_ast_node *Parser::parseFunctionDefinition()
+{
+    advanceToken(); // `function` anahtar kelimesini geç
+
+    // Fonksiyon adını al
+    if (m_currentToken->type != TOKEN_TYPE_IDENTIFIER)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected function name after 'function'");
+        exit(1);
+    }
+    std::string functionName = m_currentToken->identifier;
+    advanceToken();
+
+    // Parametre listesini ayrıştır
+    if (m_currentToken->type != TOKEN_TYPE_LPAREN)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected '(' after function name");
+        exit(1);
+    }
+    advanceToken();
+
+    std::vector<std::pair<std::string, std::string>> parameters;
+    while (m_currentToken->type == TOKEN_TYPE_IDENTIFIER)
+    {
+        std::string paramName = m_currentToken->identifier;
+        advanceToken();
+
+        if (m_currentToken->type != TOKEN_TYPE_COLON)
+        {
+            Logger::getInstance().log(LogLevel::ERROR, "Expected ':' after parameter name");
+            exit(1);
+        }
+        advanceToken();
+
+        if (m_currentToken->type != TOKEN_TYPE_INT && m_currentToken->type != TOKEN_TYPE_STRING && m_currentToken->type != TOKEN_TYPE_BOOL)
+        {
+            Logger::getInstance().log(LogLevel::ERROR, "Expected type after ':' in parameter");
+            exit(1);
+        }
+        std::string paramType = m_currentToken->type == TOKEN_TYPE_INT ? "int" : m_currentToken->type == TOKEN_TYPE_STRING ? "string" : "bool";
+        parameters.push_back({paramName, paramType});
+        advanceToken();
+
+        if (m_currentToken->type == TOKEN_TYPE_COMMA)
+        {
+            advanceToken();
+        }
+    }
+
+    if (m_currentToken->type != TOKEN_TYPE_RPAREN)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected ')' after parameter list");
+        exit(1);
+    }
+    advanceToken();
+
+    // Dönüş türünü ayrıştır
+    std::string returnType = "void";  // Varsayılan dönüş türü
+    if (m_currentToken->type == TOKEN_TYPE_ARROW)
+    {
+        advanceToken();
+        if (m_currentToken->type == TOKEN_TYPE_INT)
+            returnType = "int";
+        else if (m_currentToken->type == TOKEN_TYPE_STRING)
+            returnType = "string";
+        else if (m_currentToken->type == TOKEN_TYPE_BOOL)
+            returnType = "bool";
+        else
+        {
+            Logger::getInstance().log(LogLevel::ERROR, "Expected valid return type after '->'");
+            exit(1);
+        }
+        advanceToken();
+    }
+    // Fonksiyon gövdesini ayrıştır
+    std::vector<t_ast_node *> functionBody = parseBlock();
+
+	if (m_currentToken->type != TOKEN_TYPE_ENDFUNCTION)
+	{
+		Logger::getInstance().log(LogLevel::ERROR, "Expected 'endfunction' after function body");
+		exit(1);
+	}
+
+	advanceToken(); // Move past `endfunction`
+
+
+    // Yeni fonksiyon düğümünü oluştur
+    t_ast_node_function *functionNode = new t_ast_node_function;
+    functionNode->type = t_ast_node_type::AST_NODE_TYPE_FUNCTION;
+    functionNode->functionName = functionName;
+    functionNode->parameters = parameters;
+    functionNode->returnType = returnType;
+    functionNode->functionBody = functionBody;
+
+    return functionNode;
+}
+
 
 t_ast_node *Parser::parseBreakStatement()
 {
@@ -300,6 +468,7 @@ std::vector<t_ast_node *> Parser::parseBlock()
     // Expect `{` to start the block
     if (m_currentToken->type != TOKEN_TYPE_LBRACE)
     {
+		std::cout << m_currentToken->type << std::endl;
         Logger::getInstance().log(LogLevel::ERROR, "Expected '{' to start block");
         exit(1);
     }
@@ -486,6 +655,10 @@ t_ast_node *Parser::parseFactor()
         advanceToken();
         return node;
     }
+	else if (m_currentToken->type == TOKEN_TYPE_CALL)
+	{
+		return parseFunctionCall();
+	}
     else
     {
         Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_TOKEN_TYPE(m_currentToken->type));

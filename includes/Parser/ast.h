@@ -14,7 +14,11 @@ typedef enum class e_ast_node_type
 	AST_NODE_TYPE_IF,
 	AST_NODE_TYPE_WHILE,
 	AST_NODE_TYPE_FOR,
-	AST_NODE_TYPE_BREAK
+	AST_NODE_TYPE_BREAK,
+
+	AST_NODE_TYPE_FUNCTION,
+	AST_NODE_TYPE_CALL,
+	AST_NODE_TYPE_RETURN,
 }   t_ast_node_type;
 
 typedef struct s_ast_node
@@ -89,5 +93,24 @@ typedef struct s_ast_node_read : public s_ast_node
 typedef struct s_ast_node_break : public s_ast_node
 {
 }	t_ast_node_break;
+
+typedef struct s_ast_node_function : public s_ast_node
+{
+	std::string functionName;
+	std::string returnType;
+	std::vector<std::pair<std::string, std::string>> parameters;
+	std::vector<t_ast_node *> functionBody;
+}	t_ast_node_function;
+
+typedef struct s_ast_node_call : public s_ast_node
+{
+	std::string functionName;
+	std::vector<t_ast_node *> arguments;
+}	t_ast_node_call;
+
+typedef struct s_ast_node_return : public s_ast_node
+{
+	t_ast_node *returnValue;
+}	t_ast_node_return;
 
 #endif

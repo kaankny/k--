@@ -163,7 +163,7 @@ bool Lexer::getNextToken()
 			this->m_token.intValue = 0;
 			while (this->m_currentIndex < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex] >= '0' && this->m_inputFileContent[this->m_currentIndex] <= '9')
 			{
-				this->m_token.intValue = this->m_token.intValue * 10 + this->m_inputFileContent[this->m_currentIndex] - '0';
+				this->m_token.intValue = this->m_token.intValue * 10 + (this->m_inputFileContent[this->m_currentIndex] - '0');
 				this->m_currentIndex++;
 				this->m_currentColumn++;
 			}

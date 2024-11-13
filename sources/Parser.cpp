@@ -2,6 +2,7 @@
 #include "../includes/Lexer/Lexer.hpp"
 #include "../includes/Logger.hpp"
 #include "../includes/messages.h"
+#include "../includes/Types.hpp"
 
 std::vector<t_ast_node *> Parser::parse()
 {
@@ -165,7 +166,12 @@ t_ast_node *Parser::parseFunctionDefinition()
             Logger::getInstance().log(LogLevel::ERROR, "Expected type after ':' in parameter");
             exit(1);
         }
-        std::string paramType = m_currentToken->type == TOKEN_TYPE_INT ? "int" : m_currentToken->type == TOKEN_TYPE_STRING ? "string" : "bool";
+		std::string paramType = TypeMapping::getTypeName(m_currentToken->type);
+		if (paramType == "unknown")
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Unknown type in parameter");
+			exit(1);
+		}
         parameters.push_back({paramName, paramType});
         advanceToken();
 
@@ -187,17 +193,12 @@ t_ast_node *Parser::parseFunctionDefinition()
     if (m_currentToken->type == TOKEN_TYPE_ARROW)
     {
         advanceToken();
-        if (m_currentToken->type == TOKEN_TYPE_INT)
-            returnType = "int";
-        else if (m_currentToken->type == TOKEN_TYPE_STRING)
-            returnType = "string";
-        else if (m_currentToken->type == TOKEN_TYPE_BOOL)
-            returnType = "bool";
-        else
-        {
-            Logger::getInstance().log(LogLevel::ERROR, "Expected valid return type after '->'");
-            exit(1);
-        }
+		returnType = TypeMapping::getTypeName(m_currentToken->type);
+		if (returnType == "unknown")
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Unknown return type");
+			exit(1);
+		}
         advanceToken();
     }
     // Fonksiyon gövdesini ayrıştır
@@ -675,29 +676,12 @@ t_ast_node *Parser::parseAssignStatement()
 
     // Değişken tipini al
     std::string varType;
-    if (m_currentToken->type == TOKEN_TYPE_INT)
-    {
-        varType = "int";
-    }
-    else if (m_currentToken->type == TOKEN_TYPE_STRING)
-    {
-        varType = "string";
-    }
-	else if (m_currentToken->type == TOKEN_TYPE_BOOL)
+	varType = TypeMapping::getTypeName(m_currentToken->type);
+	if (varType == "unknown")
 	{
-		varType = "bool";
+		Logger::getInstance().log(LogLevel::ERROR, "Unknown variable type in assignment");
+		exit(1);
 	}
-	else if (m_currentToken->type == TOKEN_TYPE_AUTO)
-	{
-		varType = "auto";
-	}
-    else
-    {
-		std::cout << "Invalid variable type in assignment: " << m_currentToken->type << std::endl;
-        Logger::getInstance().log(LogLevel::ERROR, "Invalid variable type in assignment");
-        exit(1);
-    }
-
     advanceToken();
 
     // Değişken ismini al

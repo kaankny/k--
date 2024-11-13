@@ -51,5 +51,5 @@ else
 	writeln("Girdiginiz sayi asal degildir.");
 } endif;
 
-writeln("isPrime: " + call isPrime(7));
+writeln("isPrime: " + ((call isPrime(7)) || (false));
 

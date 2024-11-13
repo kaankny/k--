@@ -33,6 +33,8 @@ typedef enum e_token_type
 	TOKEN_TYPE_OR, // ||
 
 	TOKEN_TYPE_INTLIT, // Integer literal
+	TOKEN_TYPE_FLOATLIT, // Float literal
+	TOKEN_TYPE_DOUBLELIT, // Double literal
 	TOKEN_TYPE_CHARLIT, // Character literal
 	TOKEN_TYPE_STRINGLIT, // String literal
 	TOKEN_TYPE_IDENTIFIER, // Identifier
@@ -65,6 +67,8 @@ typedef enum e_token_type
 	
 	TOKEN_TYPE_AUTO, // auto
 	TOKEN_TYPE_INT, // int
+	TOKEN_TYPE_FLOAT, // float
+	TOKEN_TYPE_DOUBLE, // double
 	TOKEN_TYPE_CHAR, // char
 	TOKEN_TYPE_STRING, // string
 	TOKEN_TYPE_BOOL // bool

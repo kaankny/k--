@@ -34,6 +34,10 @@ public:
 		{
 			return boolValue ? "true" : "false";
 		}
+		else if (valueType == "float")
+		{
+			return std::to_string(floatValue);
+		}
         return "";
     }
 };

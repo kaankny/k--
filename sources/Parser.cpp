@@ -609,7 +609,26 @@ t_ast_node *Parser::parseTerm()
 
 t_ast_node *Parser::parseFactor()
 {
-    if (m_currentToken->type == TOKEN_TYPE_INTLIT)
+	if (m_currentToken->type == TOKEN_TYPE_CAST_FLOAT || m_currentToken->type == TOKEN_TYPE_CAST_INT) {
+        std::string castType = (m_currentToken->type == TOKEN_TYPE_CAST_FLOAT) ? "float" : "int";
+        advanceToken(); // Parantez içindeki tür dönüşümünü geç
+
+        if (m_currentToken->type != TOKEN_TYPE_RPAREN) {
+            Logger::getInstance().log(LogLevel::ERROR, "Expected ')' after cast type");
+            exit(1);
+        }
+        advanceToken();
+
+        t_ast_node *exprNode = parseFactor();
+
+        t_ast_node_cast *castNode = new t_ast_node_cast;
+        castNode->type = t_ast_node_type::AST_NODE_TYPE_CAST;
+        castNode->castType = castType;
+        castNode->expr = exprNode;
+
+        return castNode;
+    }
+    else if (m_currentToken->type == TOKEN_TYPE_INTLIT)
     {
         t_ast_node_literal *node = new t_ast_node_literal;
         node->type = t_ast_node_type::AST_NODE_TYPE_LITERAL;

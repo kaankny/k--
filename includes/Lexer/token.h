@@ -71,7 +71,10 @@ typedef enum e_token_type
 	TOKEN_TYPE_DOUBLE, // double
 	TOKEN_TYPE_CHAR, // char
 	TOKEN_TYPE_STRING, // string
-	TOKEN_TYPE_BOOL // bool
+	TOKEN_TYPE_BOOL, // bool
+
+	TOKEN_TYPE_CAST_FLOAT, // (float)
+	TOKEN_TYPE_CAST_INT, // (int)
 }   t_token_type;
 
 typedef struct s_token

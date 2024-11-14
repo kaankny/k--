@@ -4,6 +4,7 @@
 #include "../includes/messages.h"
 #include "../includes/Interpreter.hpp"
 
+#include <time.h>
 #include <sstream>
 
 int main(int ac, char **av)
@@ -13,10 +14,17 @@ int main(int ac, char **av)
 		return (1);
 	}
 
+	// start timer
+	clock_t start = clock();
 	Lexer::getInstance().init(av[1]);
 	std::vector<t_ast_node *> ast_nodes = Parser::getInstance().parse();
 	ScopeManager::getInstance().beginScope();
 	Interpreter::getInstance().interpret(ast_nodes);
+	ScopeManager::getInstance().endScope();
+	// end timer
+	clock_t end = clock();
+	double elapsed_time = double(end - start) / CLOCKS_PER_SEC;
+	Logger::getInstance().log(LogLevel::INFO, "Elapsed time: " + std::to_string(elapsed_time) + " seconds");
 
 	// t_token *token = Lexer::getInstance().getToken();
 	// while (Lexer::getInstance().getNextToken())

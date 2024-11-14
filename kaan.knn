@@ -26,30 +26,9 @@ function isPrime(num: int) -> bool {
 			} endif;
 		} endfor;
 
-		if (isPrime)
-		{
-			writeln("Girdiginiz sayi asaldir.");
-		}
-		else
-		{
-			writeln("Girdiginiz sayi asal degildir.");
-		} endif;
 	} endif;
 	return isPrime;
 } endfunction;
 
-assign int num;
-writeln("Bir sayi giriniz: ");
-read(num);
-assign bool isPrimeResult = call isPrime(num);
-if (isPrimeResult)
-{
-	writeln("Girdiginiz sayi asaldir.");
-}
-else
-{
-	writeln("Girdiginiz sayi asal degildir.");
-} endif;
-
-writeln("Islem sona erdi.");
-
+assign bool isPrime = call isPrime(9999999);
+writeln(isPrime);

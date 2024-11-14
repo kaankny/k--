@@ -66,9 +66,26 @@ bool Lexer::getNextToken()
 		case '/':
 			this->m_token.type = TOKEN_TYPE_SLASH;
 			break;
-		case '(':
-			this->m_token.type = TOKEN_TYPE_LPAREN;
+		case '(': {
+			// Parantez içinde bir tür dönüşümü varsa işleme al
+			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() &&
+				(this->m_inputFileContent.substr(this->m_currentIndex + 1, 5) == "float" ||
+				this->m_inputFileContent.substr(this->m_currentIndex + 1, 3) == "int")) 
+			{
+				if (this->m_inputFileContent.substr(this->m_currentIndex + 1, 5) == "float") {
+					this->m_token.type = TOKEN_TYPE_CAST_FLOAT;
+					this->m_currentIndex += 5;  // "(float" 6 karakter uzunluğunda
+				} else if (this->m_inputFileContent.substr(this->m_currentIndex + 1, 3) == "int") {
+					this->m_token.type = TOKEN_TYPE_CAST_INT;
+					this->m_currentIndex += 3;  // "(int" 4 karakter uzunluğunda
+				}
+			}
+			else
+			{
+				this->m_token.type = TOKEN_TYPE_LPAREN;
+			}
 			break;
+		}
 		case ')':
 			this->m_token.type = TOKEN_TYPE_RPAREN;
 			break;
@@ -162,50 +179,58 @@ bool Lexer::getNextToken()
 			}
 			break;
 
-		case '0' ... '9':  // Rakamlar ile başlayanları kontrol et
-            this->m_token.intValue = 0;
-            this->m_token.floatValue = 0.0f;
+		case '0' ... '9':
+		{
+			//BU KOD FIKRETIN FIKRI O YUZDE NDEGIS
+			std::string numberStr = "";
+			bool isFloat = false;
 
-            // Sayı okuma döngüsü
-            while (this->m_currentIndex < this->m_inputFileContent.size() &&
-                   (isdigit(this->m_inputFileContent[this->m_currentIndex]) ||
-                    this->m_inputFileContent[this->m_currentIndex] == '.'))
-            {
-                if (this->m_inputFileContent[this->m_currentIndex] == '.')
-                {
-                    if (isFloat)  // İkinci bir nokta var, geçersiz sayı
-                    {
-                        Logger::getInstance().log(LogLevel::ERROR, "Invalid float number format");
-                        exit(1);
-                    }
-                    isFloat = true;
-                }
-                else
-                {
-                    if (isFloat)
-                    {
-                        decimalPointPosition++;
-                        this->m_token.floatValue += (this->m_inputFileContent[this->m_currentIndex] - '0') / pow(10, decimalPointPosition);
-                    }
-                    else
-                    {
-                        this->m_token.intValue = this->m_token.intValue * 10 + (this->m_inputFileContent[this->m_currentIndex] - '0');
-                    }
-                }
-                this->m_currentIndex++;
-                this->m_currentColumn++;
-            }
-            this->m_currentIndex--;  // Başka bir karakter okunduysa geri git
-            this->m_currentColumn--;
+			while (this->m_currentIndex < this->m_inputFileContent.size() &&
+				(isdigit(this->m_inputFileContent[this->m_currentIndex]) || this->m_inputFileContent[this->m_currentIndex] == '.'))
+			{
+				if (this->m_inputFileContent[this->m_currentIndex] == '.')
+				{
+					if (isFloat)
+					{
+						exit(1);
+					}
+					isFloat = true;
+				}
+				numberStr += this->m_inputFileContent[this->m_currentIndex];
+				this->m_currentIndex++;
+				this->m_currentColumn++;
+			}
+			this->m_currentIndex--;
+			this->m_currentColumn--;
 
-            if (isFloat)
-            {
-                this->m_token.type = TOKEN_TYPE_FLOATLIT;
-            }
-            else
-            {
-                this->m_token.type = TOKEN_TYPE_INTLIT;
-            }
+			if (isFloat)
+			{
+				this->m_token.type = TOKEN_TYPE_FLOATLIT;
+				try
+				{
+					this->m_token.floatValue = std::stof(numberStr);
+				}
+				catch (const std::exception& e)
+				{
+					exit(1);
+				}
+			}
+			else
+			{
+				this->m_token.type = TOKEN_TYPE_INTLIT;
+				try
+				{
+					this->m_token.intValue = std::stoi(numberStr);
+				}
+				catch (const std::exception& e)
+				{
+					exit(1);
+				}
+			}
+			break;
+		}
+            
+			
             break;
 		case 'a' ... 'z':
 		case 'A' ... 'Z':

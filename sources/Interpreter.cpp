@@ -327,6 +327,14 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 				{
 					return Value((leftValue.boolValue ? "true" : "false") + rightValue.stringValue);
 				}
+				else if (leftValue.valueType == "string" && rightValue.valueType == "float")
+				{
+					return Value(leftValue.stringValue + std::to_string(rightValue.floatValue));
+				}
+				else if (leftValue.valueType == "float" && rightValue.valueType == "string")
+				{
+					return Value(std::to_string(leftValue.floatValue) + rightValue.stringValue);
+				}
                 else
                 {
                     Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '+' operation");
@@ -464,7 +472,6 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 				}
 				else
 				{
-					std::cout << leftValue.valueType << " " << rightValue.valueType << std::endl;
 					Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '||' operation");
 					exit(1);
 				}
@@ -504,6 +511,19 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 		{
 			return interpretFunctionCall((t_ast_node_call *)node);
 		}
+		case t_ast_node_type::AST_NODE_TYPE_CAST: {
+            t_ast_node_cast *castNode = static_cast<t_ast_node_cast *>(node);
+            Value value = evaluateExpression(castNode->expr);
+            
+            if (castNode->castType == "float" && value.valueType == "int") {
+                return Value(static_cast<float>(value.intValue));
+            }
+            else if (castNode->castType == "int" && value.valueType == "float") {
+                return Value(static_cast<int>(value.floatValue));
+            }
+            Logger::getInstance().log(LogLevel::ERROR, "Invalid cast operation");
+            exit(1);
+        }
 		default:
 			std::cout << (int)node->type << std::endl;
             Logger::getInstance().log(LogLevel::ERROR, "Unsupported AST node type in expression");

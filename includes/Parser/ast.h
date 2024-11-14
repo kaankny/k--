@@ -19,6 +19,8 @@ typedef enum class e_ast_node_type
 	AST_NODE_TYPE_FUNCTION,
 	AST_NODE_TYPE_CALL,
 	AST_NODE_TYPE_RETURN,
+
+	AST_NODE_TYPE_CAST,
 }   t_ast_node_type;
 
 typedef struct s_ast_node
@@ -113,5 +115,11 @@ typedef struct s_ast_node_return : public s_ast_node
 {
 	t_ast_node *returnValue;
 }	t_ast_node_return;
+
+typedef struct s_ast_node_cast : public s_ast_node
+{
+	std::string castType; // "int", "float"
+	t_ast_node *expr;
+}	t_ast_node_cast;
 
 #endif

@@ -16,11 +16,13 @@ int main(int ac, char **av)
 
 	// start timer
 	clock_t start = clock();
+
 	Lexer::getInstance().init(av[1]);
 	std::vector<t_ast_node *> ast_nodes = Parser::getInstance().parse();
 	ScopeManager::getInstance().beginScope();
 	Interpreter::getInstance().interpret(ast_nodes);
 	ScopeManager::getInstance().endScope();
+
 	// end timer
 	clock_t end = clock();
 	double elapsed_time = double(end - start) / CLOCKS_PER_SEC;

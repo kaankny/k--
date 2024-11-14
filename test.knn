@@ -1,3 +1,3 @@
 assign float kaan = 52.15;
 assign int a = (int)kaan;
-writeln("Kaan: " +kaan +" " + a);
+writeln("Kaan: " +kaan + " " + a);

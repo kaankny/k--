@@ -1,23 +1,55 @@
-if (x > 10)
-{
-	assign int deneme = 13
-	if (deneme == 13)
+function isPrime(num: int) -> bool {
+	assign bool isPrime = false;
+	assign int divisor = 2;
+	assign bool isLooping = true;
+	assign int remainder = 0;
+
+	if (num <= 1)
 	{
-		writeln("deneme 13")
+		isPrime = false;
+		writeln("Gecersiz sayi girdiniz.");
 	}
 	else
 	{
-		writeln("deneme 12")
-		writeln("kaan")
-	}
-	endif;
-}
-elseif (x < 5)
+		for (assign int i = 2; (i < num) && (isLooping); i = i + 1)
+		{
+			remainder = num - (num / i) * i;
+
+			if (remainder == 0)
+			{
+				isLooping = false;
+				isPrime = false;
+			}
+			else
+			{
+				isPrime = true;
+			} endif;
+		} endfor;
+
+		if (isPrime)
+		{
+			writeln("Girdiginiz sayi asaldir.");
+		}
+		else
+		{
+			writeln("Girdiginiz sayi asal degildir.");
+		} endif;
+	} endif;
+	return isPrime;
+} endfunction;
+
+assign int num;
+writeln("Bir sayi giriniz: ");
+read(num);
+assign bool isPrimeResult = call isPrime(num);
+if (isPrimeResult)
 {
-    writeln("x is less than 5")
+	writeln("Girdiginiz sayi asaldir.");
 }
 else
 {
-    writeln("x is between 5 and 10")
-}
-endif;
+	writeln("Girdiginiz sayi asal degildir.");
+} endif;
+
+writeln("Islem sona erdi.");
+

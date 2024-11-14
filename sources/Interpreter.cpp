@@ -260,6 +260,10 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
             {
                 return Value(literalNode->intValue);
             }
+			else if (literalNode->valueType == "float")
+			{
+				return Value(literalNode->floatValue);
+			}
             else if (literalNode->valueType == "string")
             {
                 return Value(literalNode->stringValue);
@@ -290,6 +294,18 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
                 if (leftValue.valueType == "int" && rightValue.valueType == "int")
                 {
                     return Value(leftValue.intValue + rightValue.intValue);
+                }
+				else if (leftValue.valueType == "float" && rightValue.valueType == "float")
+                {
+                    return Value(leftValue.floatValue + rightValue.floatValue);
+                }
+                else if (leftValue.valueType == "int" && rightValue.valueType == "float")
+                {
+                    return Value(leftValue.intValue + rightValue.floatValue);
+                }
+                else if (leftValue.valueType == "float" && rightValue.valueType == "int")
+                {
+                    return Value(leftValue.floatValue + rightValue.intValue);
                 }
                 else if (leftValue.valueType == "string" && rightValue.valueType == "string")
                 {
@@ -323,6 +339,18 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 				{
 					return Value(leftValue.intValue - rightValue.intValue);
 				}
+				else if (leftValue.valueType == "float" && rightValue.valueType == "float")
+				{
+					return Value(leftValue.floatValue - rightValue.floatValue);
+				}
+				else if (leftValue.valueType == "int" && rightValue.valueType == "float")
+				{
+					return Value(leftValue.intValue - rightValue.floatValue);
+				}
+				else if (leftValue.valueType == "float" && rightValue.valueType == "int")
+				{
+					return Value(leftValue.floatValue - rightValue.intValue);
+				}
 				else if (leftValue.valueType == "string" && rightValue.valueType == "string")
 				{
 					std::string::size_type pos = leftValue.stringValue.find(rightValue.stringValue);
@@ -346,6 +374,18 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 				if (leftValue.valueType == "int" && rightValue.valueType == "int")
 				{
 					return Value(leftValue.intValue * rightValue.intValue);
+				}
+				else if (leftValue.valueType == "float" && rightValue.valueType == "float")
+				{
+					return Value(leftValue.floatValue * rightValue.floatValue);
+				}
+				else if (leftValue.valueType == "int" && rightValue.valueType == "float")
+				{
+					return Value(leftValue.intValue * rightValue.floatValue);
+				}
+				else if (leftValue.valueType == "float" && rightValue.valueType == "int")
+				{
+					return Value(leftValue.floatValue * rightValue.intValue);
 				}
 				else if (leftValue.valueType == "string" && rightValue.valueType == "int")
 				{
@@ -373,9 +413,32 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 			}
 			else if (exprNode->op == '/')
 			{
+				if ((rightValue.valueType == "int" && rightValue.intValue == 0) ||
+					(rightValue.valueType == "float" && rightValue.floatValue == 0.0))
+				{
+					Logger::getInstance().log(LogLevel::ERROR, "Division by zero");
+					exit(1);
+				}
 				if (leftValue.valueType == "int" && rightValue.valueType == "int")
 				{
 					return Value(leftValue.intValue / rightValue.intValue);
+				}
+				else if (leftValue.valueType == "float" && rightValue.valueType == "float")
+				{
+					return Value(leftValue.floatValue / rightValue.floatValue);
+				}
+				else if (leftValue.valueType == "int" && rightValue.valueType == "float")
+				{
+					return Value(leftValue.intValue / rightValue.floatValue);
+				}
+				else if (leftValue.valueType == "float" && rightValue.valueType == "int")
+				{
+					return Value(leftValue.floatValue / rightValue.intValue);
+				}
+				else
+				{
+					Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '/' operation");
+					exit(1);
 				}
 
 				Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in '/' operation");

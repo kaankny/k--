@@ -3,6 +3,7 @@
 #include "../includes/messages.h"
 
 #include <fstream>
+#include <math.h>
 
 void Lexer::init(const char *inputFilePath)
 {
@@ -27,6 +28,9 @@ bool Lexer::getNextToken()
 {
 	this->skipWhitespaces();
 	this->skipComments();
+
+	bool isFloat = false;
+    int decimalPointPosition = -1;
 
 	if (this->m_currentIndex >= this->m_inputFileContent.size())
 	{
@@ -158,18 +162,51 @@ bool Lexer::getNextToken()
 			}
 			break;
 
-		case '0' ... '9':
-			this->m_token.type = TOKEN_TYPE_INTLIT;
-			this->m_token.intValue = 0;
-			while (this->m_currentIndex < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex] >= '0' && this->m_inputFileContent[this->m_currentIndex] <= '9')
-			{
-				this->m_token.intValue = this->m_token.intValue * 10 + (this->m_inputFileContent[this->m_currentIndex] - '0');
-				this->m_currentIndex++;
-				this->m_currentColumn++;
-			}
-			this->m_currentIndex--;
-			this->m_currentColumn--;
-			break;
+		case '0' ... '9':  // Rakamlar ile başlayanları kontrol et
+            this->m_token.intValue = 0;
+            this->m_token.floatValue = 0.0f;
+
+            // Sayı okuma döngüsü
+            while (this->m_currentIndex < this->m_inputFileContent.size() &&
+                   (isdigit(this->m_inputFileContent[this->m_currentIndex]) ||
+                    this->m_inputFileContent[this->m_currentIndex] == '.'))
+            {
+                if (this->m_inputFileContent[this->m_currentIndex] == '.')
+                {
+                    if (isFloat)  // İkinci bir nokta var, geçersiz sayı
+                    {
+                        Logger::getInstance().log(LogLevel::ERROR, "Invalid float number format");
+                        exit(1);
+                    }
+                    isFloat = true;
+                }
+                else
+                {
+                    if (isFloat)
+                    {
+                        decimalPointPosition++;
+                        this->m_token.floatValue += (this->m_inputFileContent[this->m_currentIndex] - '0') / pow(10, decimalPointPosition);
+                    }
+                    else
+                    {
+                        this->m_token.intValue = this->m_token.intValue * 10 + (this->m_inputFileContent[this->m_currentIndex] - '0');
+                    }
+                }
+                this->m_currentIndex++;
+                this->m_currentColumn++;
+            }
+            this->m_currentIndex--;  // Başka bir karakter okunduysa geri git
+            this->m_currentColumn--;
+
+            if (isFloat)
+            {
+                this->m_token.type = TOKEN_TYPE_FLOATLIT;
+            }
+            else
+            {
+                this->m_token.type = TOKEN_TYPE_INTLIT;
+            }
+            break;
 		case 'a' ... 'z':
 		case 'A' ... 'Z':
 			this->m_token.type = TOKEN_TYPE_IDENTIFIER;
@@ -238,6 +275,8 @@ bool Lexer::getNextToken()
 						this->m_token.type = TOKEN_TYPE_FOR;
 					else if (this->m_token.identifier == "function")
 						this->m_token.type = TOKEN_TYPE_FUNCTION;
+					else if (this->m_token.identifier == "float")
+						this->m_token.type = TOKEN_TYPE_FLOAT;
 					break;
 				case 'e':
 					if (this->m_token.identifier == "else")

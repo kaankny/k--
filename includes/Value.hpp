@@ -7,6 +7,7 @@ class Value
 public:
     int intValue = 0;
     std::string stringValue = "";
+	float floatValue = 0.0f;
 	bool boolValue = false;
     std::string valueType = "undefined"; // "int", "string" veya "undefined"
 
@@ -16,6 +17,7 @@ public:
     Value(int val) : intValue(val), valueType("int") {}
     Value(const std::string &val) : stringValue(val), valueType("string") {}
 	Value(bool val) : boolValue(val), valueType("bool") {}
+	Value(float val) : floatValue(val), valueType("float") {}
 
     // toString fonksiyonu
     std::string toString() const

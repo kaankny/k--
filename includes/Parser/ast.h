@@ -38,6 +38,7 @@ typedef struct s_ast_node_expr : public s_ast_node
 typedef struct s_ast_node_literal : public s_ast_node
 {
 	int intValue;
+	float floatValue;
 	std::string stringValue;
 	std::string valueType; // "int", "string"	
 	bool boolValue;

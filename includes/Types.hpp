@@ -1,4 +1,3 @@
-// Types.hpp dosyasında
 #pragma once
 #include <unordered_map>
 #include <string>
@@ -9,7 +8,8 @@ namespace TypeMapping {
 		{TOKEN_TYPE_AUTO, "auto"},
         {TOKEN_TYPE_INT, "int"},
         {TOKEN_TYPE_STRING, "string"},
-        {TOKEN_TYPE_BOOL, "bool"}
+        {TOKEN_TYPE_BOOL, "bool"},
+		{TOKEN_TYPE_FLOAT, "float"}
         // Yeni türler buraya eklenir
     };
 

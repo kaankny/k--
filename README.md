@@ -118,3 +118,11 @@ assign int num = 7;
 assign bool isPrime = call isPrime(num);
 writeln("isPrime: " + call isPrime(num));	
 ```
+
+## type casting
+```
+assign float f = 3.14;
+assign int i = (int)f;
+writeln("f: " + f);
+writeln("i: " + i);
+```

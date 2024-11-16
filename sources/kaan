@@ -1,159 +1,147 @@
-#include "../includes/Lexer/Lexer.hpp"
-#include "../includes/Logger.hpp"
-#include "../includes/messages.h"
-
-#include <fstream>
-#include <unordered_map>
-#include <cctype>    // for std::isspace
-#include <cstdlib>   // for std::atoi
-
-void Lexer::init(const char *inputFilePath)
+t_ast_node *Parser::parseSwitchStatement()
 {
-    this->m_inputFileName = inputFilePath;
-    std::ifstream file(inputFilePath);
-    if (!file.is_open())
+    advanceToken(); // "switch" anahtar kelimesini geç
+
+    if (m_currentToken->type != TOKEN_TYPE_LPAREN)
     {
-        Logger::getInstance().log(LogLevel::ERROR, MSG_COULD_NOT_OPEN_FILE(inputFilePath));
+        Logger::getInstance().log(LogLevel::ERROR, "Expected '(' after 'switch'");
         exit(1);
     }
+    advanceToken();
 
-    std::string line;
-    while (std::getline(file, line))
+    // Switch değişkenini al
+    t_ast_node *switchExpr = parseExpression();
+
+    if (m_currentToken->type != TOKEN_TYPE_RPAREN)
     {
-        this->m_inputFileContent += line;
-        this->m_inputFileContent += '\n';
+        Logger::getInstance().log(LogLevel::ERROR, "Expected ')' after switch expression");
+        exit(1);
+    }
+    advanceToken();
+
+    // Gövdeyi ayrıştır
+    if (m_currentToken->type != TOKEN_TYPE_LBRACE)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected '{' to start switch body");
+        exit(1);
+    }
+    advanceToken();
+
+    std::vector<std::pair<t_ast_node *, std::vector<t_ast_node *>>> cases;
+    std::vector<t_ast_node *> defaultCase;
+
+    while (m_currentToken->type == TOKEN_TYPE_CASE || m_currentToken->type == TOKEN_TYPE_DEFAULT)
+    {
+        if (m_currentToken->type == TOKEN_TYPE_CASE)
+        {
+            advanceToken();
+            t_ast_node *caseExpr = parseExpression();
+
+            if (m_currentToken->type != TOKEN_TYPE_COLON)
+            {
+                Logger::getInstance().log(LogLevel::ERROR, "Expected ':' after case expression");
+                exit(1);
+            }
+            advanceToken();
+
+            std::vector<t_ast_node *> caseBody = parseBlock();
+            cases.push_back(std::make_pair(caseExpr, caseBody));
+        }
+        else if (m_currentToken->type == TOKEN_TYPE_DEFAULT)
+        {
+            advanceToken();
+
+            if (m_currentToken->type != TOKEN_TYPE_COLON)
+            {
+                Logger::getInstance().log(LogLevel::ERROR, "Expected ':' after 'default'");
+                exit(1);
+            }
+            advanceToken();
+
+            defaultCase = parseBlock();
+        }
     }
 
-    // Initialize keyword map for reserved words
-    m_keywordMap = {
-        {"if", TOKEN_TYPE_IF},
-        {"else", TOKEN_TYPE_ELSE},
-        {"while", TOKEN_TYPE_WHILE},
-        {"return", TOKEN_TYPE_RETURN}
-        // Add other keywords as necessary
-    };
+    if (m_currentToken->type != TOKEN_TYPE_RBRACE)
+    {
+        Logger::getInstance().log(LogLevel::ERROR, "Expected '}' to close switch body");
+        exit(1);
+    }
+    advanceToken();
+
+    t_ast_node_switch *switchNode = new t_ast_node_switch;
+    switchNode->type = t_ast_node_type::AST_NODE_TYPE_SWITCH;
+    switchNode->switchExpr = switchExpr;
+    switchNode->cases = cases;
+    switchNode->defaultCase = defaultCase;
+
+    return switchNode;
 }
 
-bool Lexer::getNextToken()
+void Interpreter::interpretSwitchStatement(t_ast_node_switch *node)
 {
-    this->skipWhitespaces();
-    this->skipComments();
+    Value switchValue = evaluateExpression(node->switchExpr);
 
-    if (this->m_currentIndex >= this->m_inputFileContent.size())
+    bool caseMatched = false;
+
+    for (auto &casePair : node->cases)
     {
-        this->m_token.type = TOKEN_TYPE_EOF;
-        return true;
-    }
+        Value caseValue = evaluateExpression(casePair.first);
 
-    char currentChar = this->m_inputFileContent[this->m_currentIndex];
+        if (caseValue.valueType != switchValue.valueType)
+        {
+            Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in switch-case comparison");
+            exit(1);
+        }
 
-    switch (currentChar)
-    {
-        case '+':
-            this->m_token.type = TOKEN_TYPE_PLUS;
-            break;
-        case '-':
-            this->m_token.type = TOKEN_TYPE_MINUS;
-            break;
-        case '*':
-            this->m_token.type = TOKEN_TYPE_STAR;
-            break;
-        case '/':
-            this->m_token.type = TOKEN_TYPE_SLASH;
-            break;
-        case '(':
-            this->m_token.type = TOKEN_TYPE_LPAREN;
-            break;
-        case ')':
-            this->m_token.type = TOKEN_TYPE_RPAREN;
-            break;
-        default:
-            if (std::isdigit(currentChar))
+        if (caseValue == switchValue || caseMatched)
+        {
+            caseMatched = true;
+            try
             {
-                // Handle integer literal using atoi
-                int startIdx = this->m_currentIndex;
-                while (this->m_currentIndex < this->m_inputFileContent.size() && std::isdigit(this->m_inputFileContent[this->m_currentIndex]))
-                {
-                    this->m_currentIndex++;
-                }
-
-                this->m_token.type = TOKEN_TYPE_INTLIT;
-                this->m_token.intValue = std::atoi(this->m_inputFileContent.substr(startIdx, this->m_currentIndex - startIdx).c_str());
-                this->m_currentIndex--; // Adjust because we will increment after switch
+                interpret(casePair.second);
             }
-            else if (std::isalpha(currentChar))
+            catch (const char *msg)
             {
-                // Handle identifier or keyword
-                int startIdx = this->m_currentIndex;
-                while (this->m_currentIndex < this->m_inputFileContent.size() && (std::isalnum(this->m_inputFileContent[this->m_currentIndex]) || this->m_inputFileContent[this->m_currentIndex] == '_'))
+                if (std::string(msg) == "break")
                 {
-                    this->m_currentIndex++;
-                }
-
-                std::string word = this->m_inputFileContent.substr(startIdx, this->m_currentIndex - startIdx);
-                auto keywordIt = m_keywordMap.find(word);
-                if (keywordIt != m_keywordMap.end())
-                {
-                    this->m_token.type = keywordIt->second; // Keyword token
+                    return; // Break ifadesi geldiğinde döngüden çık
                 }
                 else
                 {
-                    this->m_token.type = TOKEN_TYPE_IDENTIFIER; // Identifier token
+                    throw;
                 }
-                this->m_currentIndex--; // Adjust because we will increment after switch
             }
-            else
-            {
-                Logger::getInstance().log(LogLevel::ERROR, "Unknown token");
-                exit(1);
-            }
+        }
     }
-    this->m_currentIndex++;
-    return true;
-}
 
-void Lexer::skipWhitespaces()
-{
-    while (this->m_currentIndex < this->m_inputFileContent.size() && std::isspace(this->m_inputFileContent[this->m_currentIndex]))
+    if (!caseMatched && !node->defaultCase.empty())
     {
-        if (this->m_inputFileContent[this->m_currentIndex] == '\n')
-        {
-            this->m_currentLine++;
-            this->m_currentColumn = 0;
-        }
-        else
-        {
-            this->m_currentColumn++;
-        }
-        this->m_currentIndex++;
+        interpret(node->defaultCase);
     }
 }
 
-void Lexer::skipComments()
+
+bool Value::operator==(const Value &other) const
 {
-    if (this->m_inputFileContent[this->m_currentIndex] == '/' && this->m_inputFileContent[this->m_currentIndex + 1] == '/')
-    {
-        while (this->m_currentIndex < this->m_inputFileContent.size() && this->m_inputFileContent[this->m_currentIndex] != '\n')
-        {
-            this->m_currentIndex++;
-        }
-    }
-    else if (this->m_inputFileContent[this->m_currentIndex] == '/' && this->m_inputFileContent[this->m_currentIndex + 1] == '*')
-    {
-        this->m_currentIndex += 2;
-        while (this->m_currentIndex < this->m_inputFileContent.size() && (this->m_inputFileContent[this->m_currentIndex] != '*' || this->m_inputFileContent[this->m_currentIndex + 1] != '/'))
-        {
-            if (this->m_inputFileContent[this->m_currentIndex] == '\n')
-            {
-                this->m_currentLine++;
-                this->m_currentColumn = 0;
-            }
-            else
-            {
-                this->m_currentColumn++;
-            }
-            this->m_currentIndex++;
-        }
-        this->m_currentIndex += 2;
-    }
+    if (valueType != other.valueType)
+        return false;
+
+    if (valueType == "int")
+        return intValue == other.intValue;
+    else if (valueType == "float")
+        return floatValue == other.floatValue;
+    else if (valueType == "string")
+        return stringValue == other.stringValue;
+    else if (valueType == "bool")
+        return boolValue == other.boolValue;
+
+    return false;
 }
+
+struct t_ast_node_switch : public t_ast_node
+{
+    t_ast_node *switchExpr;
+    std::vector<std::pair<t_ast_node *, std::vector<t_ast_node *>>> cases;
+    std::vector<t_ast_node *> defaultCase;
+};

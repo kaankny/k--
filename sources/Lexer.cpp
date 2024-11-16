@@ -278,6 +278,8 @@ bool Lexer::getNextToken()
 						this->m_token.type = TOKEN_TYPE_CHAR;
 					else if (this->m_token.identifier == "call")
 						this->m_token.type = TOKEN_TYPE_CALL;
+					else if (this->m_token.identifier == "continue")
+						this->m_token.type = TOKEN_TYPE_CONTINUE;
 					break;
 				case 's':
 					if (this->m_token.identifier == "string")

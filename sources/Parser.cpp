@@ -49,6 +49,8 @@ t_ast_node *Parser::parseStatement()
 			return parseReadStatement();
 		case TOKEN_TYPE_BREAK:
 			return parseBreakStatement();
+		case TOKEN_TYPE_CONTINUE:
+			return parseContinueStatement();
 		case TOKEN_TYPE_CALL:
 			return parseFunctionCall();
 		case TOKEN_TYPE_FUNCTION:
@@ -233,6 +235,16 @@ t_ast_node *Parser::parseBreakStatement()
 	breakNode->type = t_ast_node_type::AST_NODE_TYPE_BREAK;
 
 	return breakNode;
+}
+
+t_ast_node *Parser::parseContinueStatement()
+{
+	advanceToken(); // `continue` anahtar kelimesini geç
+
+	t_ast_node_continue *continueNode = new t_ast_node_continue;
+	continueNode->type = t_ast_node_type::AST_NODE_TYPE_CONTINUE;
+
+	return continueNode;
 }
 
 t_ast_node *Parser::parseReadStatement()

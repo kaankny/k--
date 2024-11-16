@@ -1,3 +1,31 @@
-assign float kaan = 52.15;
-assign int a = (int)kaan;
-writeln("Kaan: " +kaan + " " + a);
+assign int i = 0;
+while (true)
+{
+	i = i + 1;
+	if (i == 5)
+	{
+		continue;
+	} endif;
+	if (i == 10)
+	{
+		break;
+	} endif;
+	writeln(i);
+} endwhile;
+
+writeln("while test end");
+
+for (assign int k = 0; k < 10; k = k + 1)
+{
+	if (k == 5)
+	{
+		continue;
+	} endif;
+	if (k == 10)
+	{
+		break;
+	} endif;
+	writeln(k);
+} endfor;
+
+writeln("for test end");

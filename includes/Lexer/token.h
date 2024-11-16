@@ -48,6 +48,7 @@ typedef enum e_token_type
 	TOKEN_TYPE_READ, // read
 
 	TOKEN_TYPE_BREAK, // break
+	TOKEN_TYPE_CONTINUE, // continue
 
 	TOKEN_TYPE_IF, // if
 	TOKEN_TYPE_ELSE_IF, // elseif

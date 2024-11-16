@@ -44,6 +44,7 @@ class Parser
 		std::vector<t_ast_node *> parseBlock();
 
 		t_ast_node *parseBreakStatement();
+		t_ast_node *parseContinueStatement();
 
 		t_ast_node *parseFunctionDefinition();
 		t_ast_node *parseFunctionCall();

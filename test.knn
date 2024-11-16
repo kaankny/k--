@@ -1,34 +1,5 @@
-function check(num: int) -> bool
-{
-	switch (num)
-	{
-		case (1):
-		{
-			return true;
-		}
-		case (2):
-		{
-			return false;
-		}
-		default:
-		{
-			return false;
-		}
-	} endswitch;
-} endfunction;
-
-
-function main() -> int
-{
-	if (call check(4))
-	{
-		writeln("1");
-	}
-	else
-	{
-		writeln("2");
-	} endif;
-	return 0;
-} endfunction;
-
-call main();
+assign int i = 3;
+assign float f = 3.5;
+assign string s = "kaan";
+writeln("s * i: " + s * i); 
+writeln("s * f: " + s * (int)f);

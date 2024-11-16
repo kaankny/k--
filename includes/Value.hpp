@@ -58,4 +58,158 @@ public:
 		return false;
 	}
 
+	Value operator+(const Value &other) const
+	{
+		if (this->valueType == "int" && other.valueType == "int")
+		{
+			return Value(this->intValue + other.intValue);
+		}
+		else if (this->valueType == "float" && other.valueType == "float")
+		{
+			return Value(this->floatValue + other.floatValue);
+		}
+		else if (this->valueType == "int" && other.valueType == "float")
+		{
+			return Value(this->intValue + other.floatValue);
+		}
+		else if (this->valueType == "float" && other.valueType == "int")
+		{
+			return Value(this->floatValue + other.intValue);
+		}
+		else if (this->valueType == "string" && other.valueType == "string")
+		{
+			return Value(this->stringValue + other.stringValue);
+		}
+		else if (this->valueType == "string" && other.valueType == "int")
+		{
+			return Value(this->stringValue + std::to_string(other.intValue));
+		}
+		else if (this->valueType == "int" && other.valueType == "string")
+		{
+			return Value(std::to_string(this->intValue) + other.stringValue);
+		}
+		else if (this->valueType == "string" && other.valueType == "bool")
+		{
+			return Value(this->stringValue + (other.boolValue ? "true" : "false"));
+		}
+		else if (this->valueType == "bool" && other.valueType == "string")
+		{
+			return Value((this->boolValue ? "true" : "false") + other.stringValue);
+		}
+		else if (this->valueType == "string" && other.valueType == "float")
+		{
+			return Value(this->stringValue + std::to_string(other.floatValue));
+		}
+		else if (this->valueType == "float" && other.valueType == "string")
+		{
+			return Value(std::to_string(this->floatValue) + other.stringValue);
+		}
+		else
+		{
+			std::cerr << "Type mismatch in '+' operation" << std::endl;
+			exit(1);
+		}
+	}
+
+	Value operator-(const Value &other) const
+	{
+		if (this->valueType == "int" && other.valueType == "int")
+		{
+			return Value(this->intValue - other.intValue);
+		}
+		else if (this->valueType == "float" && other.valueType == "float")
+		{
+			return Value(this->floatValue - other.floatValue);
+		}
+		else if (this->valueType == "int" && other.valueType == "float")
+		{
+			return Value(this->intValue - other.floatValue);
+		}
+		else if (this->valueType == "float" && other.valueType == "int")
+		{
+			return Value(this->floatValue - other.intValue);
+		}
+		else
+		{
+			std::cerr << "Type mismatch in '-' operation" << std::endl;
+			exit(1);
+		}
+	}
+
+	Value operator*(const Value &other) const
+	{
+		if (this->valueType == "int" && other.valueType == "int")
+		{
+			return Value(this->intValue * other.intValue);
+		}
+		else if (this->valueType == "float" && other.valueType == "float")
+		{
+			return Value(this->floatValue * other.floatValue);
+		}
+		else if (this->valueType == "int" && other.valueType == "float")
+		{
+			return Value(this->intValue * other.floatValue);
+		}
+		else if (this->valueType == "float" && other.valueType == "int")
+		{
+			return Value(this->floatValue * other.intValue);
+		}
+		else if (this->valueType == "string" && other.valueType == "int")
+		{
+			std::string result = "";
+			for (int i = 0; i < other.intValue; i++)
+			{
+				result += this->stringValue;
+			}
+			return Value(result);
+		}
+		else if (this->valueType == "int" && other.valueType == "string")
+		{
+			std::string result = "";
+			for (int i = 0; i < this->intValue; i++)
+			{
+				result += other.stringValue;
+			}
+			return Value(result);
+		}
+		else
+		{
+			std::cerr << "Type mismatch in '*' operation" << std::endl;
+			exit(1);
+		}
+	}
+
+	Value operator/(const Value &other) const
+	{
+		if ((other.valueType == "int" && other.intValue == 0) ||
+			(other.valueType == "float" && other.floatValue == 0.0))
+		{
+			std::cerr << "Division by zero" << std::endl;
+			exit(1);
+		}
+
+		if (this->valueType == "int" && other.valueType == "int")
+		{
+			return Value(this->intValue / other.intValue);
+		}
+		else if (this->valueType == "float" && other.valueType == "float")
+		{
+			return Value(this->floatValue / other.floatValue);
+		}
+		else if (this->valueType == "int" && other.valueType == "float")
+		{
+			return Value(this->intValue / other.floatValue);
+		}
+		else if (this->valueType == "float" && other.valueType == "int")
+		{
+			return Value(this->floatValue / other.intValue);
+		}
+		else
+		{
+			std::cerr << "Type mismatch in '/' operation" << std::endl;
+			exit(1);
+		}
+	}
+
+
 };

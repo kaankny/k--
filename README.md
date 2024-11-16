@@ -1,8 +1,6 @@
-# K-- Programming Language
+<p align="center"> <img src="k_logo.png" alt="K-- Logo" width="250"> </p>
 
-![k_logo.png](k_logo.png)
-
-**K--** is a lightweight, C++-based programming language designed with simplicity and flexibility in mind. With an intuitive syntax and essential programming constructs, **K--** is an ideal language for beginners and a great sandbox for experienced developers exploring language design principles.
+ **K--** is a simple, C++-based programming language designed for learning and rapid prototyping.
 
 ---
 
@@ -137,6 +135,7 @@ assign int i = (int)f;
 
 Planned features for upcoming releases:
 - [ ] soon soon soon
+      
 Contributions to the TODO list are welcome!
 
 ---
@@ -154,6 +153,8 @@ If you have questions, feel free to reach out via [GitHub Issues](https://github
 ---
 
 ## 🌐 Links
+
+soon soon soon
 
 ---
 

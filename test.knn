@@ -1,31 +1,34 @@
-assign int k;
-read(k);
+function check(num: int) -> bool
+{
+	switch (num)
+	{
+		case (1):
+		{
+			return true;
+		}
+		case (2):
+		{
+			return false;
+		}
+		default:
+		{
+			return false;
+		}
+	} endswitch;
+} endfunction;
 
-switch (k) {
-  case 1:
-  {
-	assign int a = 1;
-  }
-  case 2:
-  {
-	assign int a = 2;
-  }
-  case 3:
-  {
-	assign int a = 3;
-  }
-  case 4:
-  {
-	assign int a = 4;
-  }
-  case 5:
-  {
-	assign int a = 5;
-  }
-  default:
-  {
-	assign int a = 31;
-  }
-} endswitch;
 
-writeln(a);
+function main() -> int
+{
+	if (call check(4))
+	{
+		writeln("1");
+	}
+	else
+	{
+		writeln("2");
+	} endif;
+	return 0;
+} endfunction;
+
+call main();

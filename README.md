@@ -84,6 +84,9 @@ while (i < 5) {
 } endwhile;
 
 for (assign int j = 0; j < 5; j = j + 1) {
+	if (j == 3) {
+		continue;
+	} endif;
 	writeln("j: " + j);
 } endfor;
 ```

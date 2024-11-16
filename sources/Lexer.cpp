@@ -280,10 +280,14 @@ bool Lexer::getNextToken()
 						this->m_token.type = TOKEN_TYPE_CALL;
 					else if (this->m_token.identifier == "continue")
 						this->m_token.type = TOKEN_TYPE_CONTINUE;
+					else if (this->m_token.identifier == "case")
+						this->m_token.type = TOKEN_TYPE_CASE;
 					break;
 				case 's':
 					if (this->m_token.identifier == "string")
 						this->m_token.type = TOKEN_TYPE_STRING;
+					else if (this->m_token.identifier == "switch")
+						this->m_token.type = TOKEN_TYPE_SWITCH;
 					break;
 				case 'b':
 					if (this->m_token.identifier == "bool")
@@ -318,6 +322,12 @@ bool Lexer::getNextToken()
 						this->m_token.type = TOKEN_TYPE_ENDFOR;
 					else if (this->m_token.identifier == "endfunction")
 						this->m_token.type = TOKEN_TYPE_ENDFUNCTION;
+					else if (this->m_token.identifier == "endswitch")
+						this->m_token.type = TOKEN_TYPE_ENDSWITCH;
+					break;
+				case 'd':
+					if (this->m_token.identifier == "default")
+						this->m_token.type = TOKEN_TYPE_DEFAULT;
 					break;
 				default:
 					break;

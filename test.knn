@@ -1,31 +1,31 @@
-assign int i = 0;
-while (true)
-{
-	i = i + 1;
-	if (i == 5)
-	{
-		continue;
-	} endif;
-	if (i == 10)
-	{
-		break;
-	} endif;
-	writeln(i);
-} endwhile;
+assign int k;
+read(k);
 
-writeln("while test end");
+switch (k) {
+  case 1:
+  {
+	assign int a = 1;
+  }
+  case 2:
+  {
+	assign int a = 2;
+  }
+  case 3:
+  {
+	assign int a = 3;
+  }
+  case 4:
+  {
+	assign int a = 4;
+  }
+  case 5:
+  {
+	assign int a = 5;
+  }
+  default:
+  {
+	assign int a = 31;
+  }
+} endswitch;
 
-for (assign int k = 0; k < 10; k = k + 1)
-{
-	if (k == 5)
-	{
-		continue;
-	} endif;
-	if (k == 10)
-	{
-		break;
-	} endif;
-	writeln(k);
-} endfor;
-
-writeln("for test end");
+writeln(a);

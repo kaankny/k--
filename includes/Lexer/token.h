@@ -50,6 +50,11 @@ typedef enum e_token_type
 	TOKEN_TYPE_BREAK, // break
 	TOKEN_TYPE_CONTINUE, // continue
 
+	TOKEN_TYPE_SWITCH, // switch
+	TOKEN_TYPE_CASE, // case
+	TOKEN_TYPE_DEFAULT, // default
+	TOKEN_TYPE_ENDSWITCH, // endswitch
+
 	TOKEN_TYPE_IF, // if
 	TOKEN_TYPE_ELSE_IF, // elseif
 	TOKEN_TYPE_ELSE, // else

@@ -22,6 +22,8 @@ typedef enum class e_ast_node_type
 	AST_NODE_TYPE_CALL,
 	AST_NODE_TYPE_RETURN,
 
+	AST_NODE_TYPE_SWITCH,
+
 	AST_NODE_TYPE_CAST,
 }   t_ast_node_type;
 
@@ -127,5 +129,12 @@ typedef struct s_ast_node_cast : public s_ast_node
 	std::string castType; // "int", "float"
 	t_ast_node *expr;
 }	t_ast_node_cast;
+
+typedef struct s_ast_node_switch : public s_ast_node
+{
+	t_ast_node *switchExpr;
+	std::vector<std::pair<t_ast_node *, std::vector<t_ast_node *>>> cases;
+	std::vector<t_ast_node *> defaultCase;
+}	t_ast_node_switch;
 
 #endif

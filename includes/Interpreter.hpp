@@ -34,6 +34,8 @@ class Interpreter
 		void interpretFunctionDefinition(t_ast_node_function *node);
 		Value interpretFunctionCall(t_ast_node_call *node);
 
+		void interpretSwitchStatement(t_ast_node_switch *node);
+
 		Value evaluateExpression(t_ast_node *node);
 		std::string evaluateStringExpression(t_ast_node *node);
 };

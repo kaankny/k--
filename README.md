@@ -74,6 +74,28 @@ if (age > 18) {
 } endif;
 ```
 
+### Switch-Case
+Select from multiple options.
+```k--
+switch (age) {
+	case 18:
+	{
+		writeln("You are 18 years old.");
+		break;
+	}
+	case 19:
+	{
+		writeln("You are 19 years old.");
+		break;
+	}
+	default:
+	{
+		writeln("You are neither 18 nor 19 years old.");
+		break;
+	}
+} endswitch;
+```
+
 ### Loops
 Iterate with `while` and `for` loops.
 ```k--

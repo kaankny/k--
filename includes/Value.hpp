@@ -40,4 +40,22 @@ public:
 		}
         return "";
     }
+
+	bool operator==(const Value &other) const
+	{
+		if (valueType != other.valueType)
+			return false;
+
+		if (valueType == "int")
+			return intValue == other.intValue;
+		else if (valueType == "float")
+			return floatValue == other.floatValue;
+		else if (valueType == "string")
+			return stringValue == other.stringValue;
+		else if (valueType == "bool")
+			return boolValue == other.boolValue;
+
+		return false;
+	}
+
 };

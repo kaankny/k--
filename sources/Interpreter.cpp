@@ -34,18 +34,66 @@ void Interpreter::interpret(std::vector<t_ast_node *> ast)
 			case t_ast_node_type::AST_NODE_TYPE_CALL:
 				interpretFunctionCall((t_ast_node_call *)node);
 				break;
+			case t_ast_node_type::AST_NODE_TYPE_SWITCH:
+				interpretSwitchStatement((t_ast_node_switch *)node);
+				break;
 			case t_ast_node_type::AST_NODE_TYPE_RETURN:
 				throw evaluateExpression(((t_ast_node_return *)node)->returnValue);
 			case t_ast_node_type::AST_NODE_TYPE_BREAK:
-				throw "break";
+				throw std::string("break");
 			case t_ast_node_type::AST_NODE_TYPE_CONTINUE:
-				throw "continue";
+				throw std::string("continue");
 			default:
 				Logger::getInstance().log(LogLevel::ERROR, MSG_INVALID_AST_NODE_TYPE((int)node->type));
 				exit(1);
 		}
 	}
 }
+
+void Interpreter::interpretSwitchStatement(t_ast_node_switch *node)
+{
+    Value switchValue = evaluateExpression(node->switchExpr);
+
+    bool caseMatched = false;
+
+    for (auto &casePair : node->cases)
+    {
+        Value caseValue = evaluateExpression(casePair.first);
+
+        if (caseValue.valueType != switchValue.valueType)
+        {
+            Logger::getInstance().log(LogLevel::ERROR, "Type mismatch in switch-case comparison");
+            exit(1);
+        }
+
+        if (caseValue == switchValue || caseMatched)
+        {
+            caseMatched = true; // Eşleşen bir case bulundu
+            try
+            {
+                interpret(casePair.second);
+            }
+            catch (const std::string &msg)
+            {
+                if (msg == "break")
+                {
+                    return; // `break` gelirse switch'ten çık
+                }
+                else
+                {
+                    throw; // Diğer hatalar yeniden fırlatılır
+                }
+            }
+        }
+    }
+
+    if (!caseMatched && !node->defaultCase.empty())
+    {
+        // Hiçbir case eşleşmediyse varsayılan body’yi çalıştır
+        interpret(node->defaultCase);
+    }
+}
+
 
 Value Interpreter::interpretFunctionCall(t_ast_node_call *node)
 {
@@ -176,13 +224,13 @@ void Interpreter::interpretWhileStatement(t_ast_node_while *node)
         try
 		{
             interpret(node->whileBody);
-        } catch (const char *msg)
+        } catch (const std::string &msg)
 		{
-			if (std::string(msg) == "continue")
+			if (msg == "continue")
 			{
 				continue; // Continue ifadesi yakalanırsa döngünün bir sonraki adımına geç
 			}
-			else if (std::string(msg) == "break")
+			else if (msg == "break")
 			{
                 break;  // Break ifadesi yakalanırsa döngüden çık
             }

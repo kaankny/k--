@@ -1,5 +1,22 @@
-assign int i = 3;
+assign int i = 1;
 assign float f = 3.5;
 assign string s = "kaan";
 writeln("s * i: " + s * i); 
 writeln("s * f: " + s * (int)f);
+
+switch (i)
+{
+	case (1):
+	{
+		writeln("asd");
+		break;
+	}
+	case (2):
+	{
+		writeln("31");
+	}
+	default:
+	{
+		writeln("kaan");
+	}
+} endswitch;

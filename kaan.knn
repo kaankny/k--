@@ -30,5 +30,5 @@ function isPrime(num: int) -> bool {
 	return isPrime;
 } endfunction;
 
-assign bool isPrime = call isPrime(9999999);
+assign bool isPrime = call isPrime(7);
 writeln(isPrime);

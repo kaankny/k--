@@ -12,6 +12,7 @@ t_ast_node *Parser::parseReadStatement()
     }
     advanceToken();
 
+
     // Değişken adını al
     if (m_currentToken->type != TOKEN_TYPE_IDENTIFIER)
     {

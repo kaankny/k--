@@ -160,49 +160,71 @@ void Interpreter::interpretReadStatement(t_ast_node_read *node)
 		Logger::getInstance().log(LogLevel::ERROR, "Variable '" + varName + "' is not defined");
 		exit(1);
 	}
+	std::cout << node->msg;
 	std::string varType = value.valueType;
 	std::string input;
 	std::cin >> input;
 
 	if (varType == "int")
 	{
-		int intValue;
 		try
 		{
-			intValue = std::stoi(input);
+			value.intValue = std::stoi(input);
 		}
 		catch (const std::invalid_argument &e)
 		{
 			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for integer variable '" + varName + "'");
 			exit(1);
 		}
-		 ScopeManager::getInstance().setVariable(varName, Value(intValue));
+	}
+	else if (varType == "float")
+	{
+		try
+		{
+			value.floatValue = std::stof(input);
+		}
+		catch (const std::invalid_argument &e)
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for float variable '" + varName + "'");
+			exit(1);
+		}
 	}
 	else if (varType == "string")
 	{
-		 ScopeManager::getInstance().setVariable(varName, Value(input));
+		value.stringValue = input;
+	}
+	else if (varType == "char")
+	{
+		if (input.length() != 1)
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for char variable '" + varName + "'");
+			exit(1);
+		}
+		value.charValue = input[0];
 	}
 	else if (varType == "bool")
 	{
 		if (input == "true")
 		{
-			 ScopeManager::getInstance().setVariable(varName, Value(true));
+			value.boolValue = true;
 		}
 		else if (input == "false")
 		{
-			 ScopeManager::getInstance().setVariable(varName, Value(false));
+			value.boolValue = false;
 		}
 		else
 		{
-			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for boolean variable '" + varName + "'");
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for bool variable '" + varName + "'");
 			exit(1);
 		}
 	}
 	else
 	{
-		Logger::getInstance().log(LogLevel::ERROR, "Invalid variable type in read statement");
+		Logger::getInstance().log(LogLevel::ERROR, "Invalid variable type for read statement");
 		exit(1);
 	}
+
+	 ScopeManager::getInstance().setVariable(varName, value);
 }
 
 void Interpreter::interpretWhileStatement(t_ast_node_while *node)

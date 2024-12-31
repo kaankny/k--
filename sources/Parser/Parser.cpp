@@ -37,6 +37,7 @@ t_ast_node *Parser::parseStatement()
         case TOKEN_TYPE_WRITE:
         case TOKEN_TYPE_WRITELN:
             return parseWriteStatement();
+
         case TOKEN_TYPE_IDENTIFIER:
             return parseVariableAssign();
 		case TOKEN_TYPE_IF:

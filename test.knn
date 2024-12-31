@@ -27,3 +27,9 @@ assign char b = 'b';
 writeln("b: " + b);
 assign string ab = a + b;
 writeln("ab: " + ab);
+
+
+assign char test = 'c';
+writeln("test: " + test);
+read(test);
+writeln("test: " + test);

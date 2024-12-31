@@ -2,6 +2,11 @@
 #include "../../../includes/Logger.hpp"
 #include "../../../includes/Types.hpp"
 
+/// @brief Parses an assignment statement in the source code.
+/// This function advances the token stream, retrieves the variable type and name,
+/// and ensures they are valid. If the variable type is unknown or the variable name
+/// is missing, it logs an error and exits the program.
+/// @return A pointer to the AST node representing the assignment statement.
 t_ast_node *Parser::parseAssignStatement()
 {
     advanceToken();

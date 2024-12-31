@@ -353,6 +353,10 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 			{
 				return Value(literalNode->boolValue);
 			}
+			else if (literalNode->valueType == "char")
+			{
+				return Value(literalNode->charValue);
+			}
             else
             {
                 Logger::getInstance().log(LogLevel::ERROR, "Unknown literal type");

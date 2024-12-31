@@ -9,7 +9,8 @@ namespace TypeMapping {
         {TOKEN_TYPE_INT, "int"},
         {TOKEN_TYPE_STRING, "string"},
         {TOKEN_TYPE_BOOL, "bool"},
-		{TOKEN_TYPE_FLOAT, "float"}
+		{TOKEN_TYPE_FLOAT, "float"},
+		{TOKEN_TYPE_CHAR, "char"},
         // Yeni türler buraya eklenir
     };
 

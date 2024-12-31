@@ -20,3 +20,10 @@ switch (i)
 		writeln("kaan");
 	}
 } endswitch;
+
+assign char a = 'a';
+writeln("a: " + a);
+assign char b = 'b';
+writeln("b: " + b);
+assign string ab = a + b;
+writeln("ab: " + ab);

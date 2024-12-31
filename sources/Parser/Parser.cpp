@@ -229,6 +229,15 @@ t_ast_node *Parser::parseFactor()
         advanceToken();
         return node;
     }
+	else if (m_currentToken->type == TOKEN_TYPE_CHARLIT)
+	{
+		t_ast_node_literal *node = new t_ast_node_literal;
+		node->type = t_ast_node_type::AST_NODE_TYPE_LITERAL;
+		node->charValue = m_currentToken->charValue;
+		node->valueType = "char";
+		advanceToken();
+		return node;
+	}
     else if (m_currentToken->type == TOKEN_TYPE_IDENTIFIER)
     {
         t_ast_node_variable *node = new t_ast_node_variable;

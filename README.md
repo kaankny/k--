@@ -42,6 +42,7 @@ assign int age = 19;
 assign string name = "Kaan";
 assign bool isStudent = true;
 assign float pi = 3.14;
+assign char grade = 'A';
 ```
 
 ### Write and Writeln
@@ -51,6 +52,7 @@ writeln("Age: " + age);
 writeln("Name: " + name);
 writeln("Is Student: " + isStudent);
 writeln("Pi: " + pi);
+writeln("Grade: " + grade);
 ```
 
 ### Read (Coming Soon)
@@ -60,6 +62,7 @@ read("Enter your age: ", age);
 read("Enter your name: ", name);
 read("Are you a student? ", isStudent);
 read("Enter the value of pi: ", pi);
+read("Enter your grade: ", grade);
 ```
 
 ### If-Else

@@ -9,6 +9,7 @@ public:
     std::string stringValue = "";
 	float floatValue = 0.0f;
 	bool boolValue = false;
+	char charValue = '\0';
     std::string valueType = "undefined"; // "int", "string" veya "undefined"
 
     // Varsayılan yapıcı fonksiyon
@@ -18,6 +19,7 @@ public:
     Value(const std::string &val) : stringValue(val), valueType("string") {}
 	Value(bool val) : boolValue(val), valueType("bool") {}
 	Value(float val) : floatValue(val), valueType("float") {}
+	Value(char val) : charValue(val), valueType("char") {}
 
     // toString fonksiyonu
     std::string toString() const
@@ -38,6 +40,10 @@ public:
 		{
 			return std::to_string(floatValue);
 		}
+		else if (valueType == "char")
+		{
+			return std::string(1, charValue);
+		}
         return "";
     }
 
@@ -54,6 +60,8 @@ public:
 			return stringValue == other.stringValue;
 		else if (valueType == "bool")
 			return boolValue == other.boolValue;
+		else if (valueType == "char")
+			return charValue == other.charValue;
 
 		return false;
 	}
@@ -103,6 +111,18 @@ public:
 		else if (this->valueType == "float" && other.valueType == "string")
 		{
 			return Value(std::to_string(this->floatValue) + other.stringValue);
+		}
+		else if (this->valueType == "char" && other.valueType == "char")
+		{
+			return Value(std::string(1, this->charValue) + std::string(1, other.charValue));
+		}
+		else if (this->valueType == "char" && other.valueType == "string")
+		{
+			return Value(std::string(1, this->charValue) + other.stringValue);
+		}
+		else if (this->valueType == "string" && other.valueType == "char")
+		{
+			return Value(this->stringValue + std::string(1, other.charValue));
 		}
 		else
 		{

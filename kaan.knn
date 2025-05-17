@@ -1,1 +1,4 @@
-writeln((2 == 2) && (1 == 2))
+assign string name = "eski isim";
+writeln("merhaba " + name + name);
+read(name, string, "yeni isminizi giriniz: ");
+writeln("yeni isim: " + name);

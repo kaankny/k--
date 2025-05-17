@@ -2,6 +2,7 @@
 #define AST_H
 
 #include <string>
+#include "../Lexer/token.h"
 
 typedef enum class e_ast_node_type
 {
@@ -95,7 +96,11 @@ typedef struct s_ast_node_for : public s_ast_node
 
 typedef struct s_ast_node_read : public s_ast_node
 {
+	int fd;
 	std::string varName;
+	t_token_type varType;
+	std::string message;
+
 }	t_ast_node_read;
 
 typedef struct s_ast_node_break : public s_ast_node

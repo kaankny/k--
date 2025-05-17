@@ -1,35 +1,3 @@
-assign int i = 1;
-assign float f = 3.5;
-assign string s = "kaan";
-writeln("s * i: " + s * i); 
-writeln("s * f: " + s * (int)f);
-
-switch (i)
-{
-	case (1):
-	{
-		writeln("asd");
-		break;
-	}
-	case (2):
-	{
-		writeln("31");
-	}
-	default:
-	{
-		writeln("kaan");
-	}
-} endswitch;
-
-assign char a = 'a';
-writeln("a: " + a);
-assign char b = 'b';
-writeln("b: " + b);
-assign string ab = a + b;
-writeln("ab: " + ab);
-
-
-assign char test = 'c';
-writeln("test: " + test);
-read(test);
-writeln("test: " + test);
+assign float a = 5.0;
+read(a, float, "gir:");
+writeln(a);

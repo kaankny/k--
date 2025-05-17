@@ -67,6 +67,7 @@ bool Lexer::getNextToken()
 			this->m_token.type = TOKEN_TYPE_SLASH;
 			break;
 		case '(': {
+			//TODO: burayi bu sekilde yapmamak lazim. parse ederken bakicaz parantezin icerisinde hangi deger var diye
 			// Parantez içinde bir tür dönüşümü varsa işleme al
 			if (this->m_currentIndex + 1 < this->m_inputFileContent.size() &&
 				(this->m_inputFileContent.substr(this->m_currentIndex + 1, 5) == "float" ||

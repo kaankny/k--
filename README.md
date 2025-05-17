@@ -56,14 +56,16 @@ writeln("Grade: " + grade);
 ```
 
 ### Read (Coming Soon)
-Input values from the user.
+The read statement is used to input values from the user. It supports optional message prompts and file descriptors (FDs). There are multiple supported formats:
 ```k--
-read("Enter your age: ", age);
-read("Enter your name: ", name);
-read("Are you a student? ", isStudent);
-read("Enter the value of pi: ", pi);
-read("Enter your grade: ", grade);
+read(varName, varType);
+read(varName, varType, "message");
+
+read(fd, varName, varType);
+read(fd, varName, varType, "message");
+
 ```
+-📌 Note: File descriptors other than 0 (stdin) are not yet supported in the interpreter, but are reserved for future extension.
 
 ### If-Else
 Control flow with conditional statements.

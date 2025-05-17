@@ -154,79 +154,123 @@ void Interpreter::interpretFunctionDefinition(t_ast_node_function *node)
 void Interpreter::interpretReadStatement(t_ast_node_read *node)
 {
 	std::string varName = node->varName;
-	Value value =  ScopeManager::getInstance().getVariable(varName);
+	t_token_type varType = node->varType;
+	std::string message = node->message;
+
+	Value value = ScopeManager::getInstance().getVariable(varName);
 	if (value.valueType == "undefined")
 	{
 		Logger::getInstance().log(LogLevel::ERROR, "Variable '" + varName + "' is not defined");
 		exit(1);
 	}
-	// TODO: Apply the same logic as in the write statement
-	//std::cout << node->msg;
-	std::string varType = value.valueType;
-	std::string input;
-	std::cin >> input;
 
-	if (varType == "int")
+	// Kullanıcıya mesaj göster
+	if (!message.empty())
 	{
-		try
-		{
-			value.intValue = std::stoi(input);
-		}
-		catch (const std::invalid_argument &e)
-		{
-			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for integer variable '" + varName + "'");
-			exit(1);
-		}
+		std::cout << message;
+		std::cout.flush();
 	}
-	else if (varType == "float")
+
+	// Giriş kaynağına göre input al (şimdilik sadece fd == 0 destekleniyor)
+	std::string input;
+	if (node->fd == 0)
 	{
-		try
-		{
-			value.floatValue = std::stof(input);
-		}
-		catch (const std::invalid_argument &e)
-		{
-			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for float variable '" + varName + "'");
-			exit(1);
-		}
-	}
-	else if (varType == "string")
-	{
-		value.stringValue = input;
-	}
-	else if (varType == "char")
-	{
-		if (input.length() != 1)
-		{
-			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for char variable '" + varName + "'");
-			exit(1);
-		}
-		value.charValue = input[0];
-	}
-	else if (varType == "bool")
-	{
-		if (input == "true")
-		{
-			value.boolValue = true;
-		}
-		else if (input == "false")
-		{
-			value.boolValue = false;
-		}
-		else
-		{
-			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for bool variable '" + varName + "'");
-			exit(1);
-		}
+		std::getline(std::cin >> std::ws, input);
 	}
 	else
 	{
-		Logger::getInstance().log(LogLevel::ERROR, "Invalid variable type for read statement");
+		Logger::getInstance().log(LogLevel::ERROR, "Only stdin (fd = 0) is supported in 'read' for now");
 		exit(1);
 	}
 
-	 ScopeManager::getInstance().setVariable(varName, value);
+	// Tür kontrolü ve input dönüştürme
+	if (varType == TOKEN_TYPE_INT)
+	{
+		try {
+			value.intValue = std::stoi(input);
+			value.valueType = "int";
+		} catch (...) {
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for int: '" + input + "'");
+			exit(1);
+		}
+	}
+	else if (varType == TOKEN_TYPE_FLOAT)
+	{
+		try {
+			value.floatValue = std::stof(input);
+			value.valueType = "float";
+		} catch (...) {
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for float: '" + input + "'");
+			exit(1);
+		}
+	}
+	else if (varType == TOKEN_TYPE_DOUBLE)
+	{
+		try {
+			value.floatValue = std::stod(input);
+			value.valueType = "double";
+		} catch (...) {
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for double: '" + input + "'");
+			exit(1);
+		}
+	}
+	else if (varType == TOKEN_TYPE_STRING)
+	{
+		value.stringValue = input;
+		value.valueType = "string";
+	}
+	else if (varType == TOKEN_TYPE_CHAR)
+	{
+		if (input.length() != 1)
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for char: '" + input + "'");
+			exit(1);
+		}
+		value.charValue = input[0];
+		value.valueType = "char";
+	}
+	else if (varType == TOKEN_TYPE_BOOL)
+	{
+		if (input == "true" || input == "1")
+		{
+			value.boolValue = true;
+			value.valueType = "bool";
+		}
+		else if (input == "false" || input == "0")
+		{
+			value.boolValue = false;
+			value.valueType = "bool";
+		}
+		else if (input == "True" || input == "1")
+		{
+			value.boolValue = true;
+			value.valueType = "bool";
+		}
+		else if (input == "False" || input == "0")
+		{
+			value.boolValue = false;
+			value.valueType = "bool";
+		}
+		else
+		{
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for bool: '" + input + "'");
+			exit(1);
+		}
+	}
+	else if (varType == TOKEN_TYPE_FLOAT)
+	{
+		try {
+			value.floatValue = std::stof(input);
+			value.valueType = "float";
+		} catch (...) {
+			Logger::getInstance().log(LogLevel::ERROR, "Invalid input for float: '" + input + "'");
+			exit(1);
+		}
+	}
+	// Güncellenmiş değeri scope'a kaydet
+	ScopeManager::getInstance().setVariable(varName, value);
 }
+
 
 void Interpreter::interpretWhileStatement(t_ast_node_while *node)
 {

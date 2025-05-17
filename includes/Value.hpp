@@ -231,5 +231,30 @@ public:
 		}
 	}
 
+	Value operator%(const Value &other) const
+	{
+		if (this->valueType == "int" && other.valueType == "int")
+		{
+			return Value(this->intValue % other.intValue);
+		}
+		else if (this->valueType == "float" && other.valueType == "float")
+		{
+			return Value(static_cast<int>(this->floatValue) % static_cast<int>(other.floatValue));
+		}
+		else if (this->valueType == "int" && other.valueType == "float")
+		{
+			return Value(this->intValue % static_cast<int>(other.floatValue));
+		}
+		else if (this->valueType == "float" && other.valueType == "int")
+		{
+			return Value(static_cast<int>(this->floatValue) % other.intValue);
+		}
+		else
+		{
+			std::cerr << "Type mismatch in '%' operation" << std::endl;
+			exit(1);
+		}
+	}
+
 
 };

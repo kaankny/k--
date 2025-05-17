@@ -143,6 +143,21 @@ assign float f = 3.14;
 assign int i = (int)f;
 ```
 
+### Operator Precedence
+In K--, expressions follow a predictable operator precedence similar to C-like languages. You can override the default precedence using parentheses () to control the order of evaluation.
+Operator Precedence Table (Highest to Lowest)
+
+| Precedence Level | Operators            | Description                     |
+|------------------|----------------------|---------------------------------|
+| 1 (Highest)      | `()`                 | Parentheses                     |
+| 2                | `(int)`, `(float)`   | Type Casting                    |
+| 3                | `* / %`              | Multiplication, Division, Mod   |
+| 4                | `+ -`                | Addition, Subtraction           |
+| 5                | `< <= > >= == !=`    | Comparison Operators            |
+| 6                | `&&`                 | Logical AND                     |
+| 7 (Lowest)       | `\|\|`               | Logical OR                      |
+
+- 📌 Use parentheses liberally to avoid ambiguity and make your code more readable.
 ---
 
 ## 🛠️ Building K-- Programs

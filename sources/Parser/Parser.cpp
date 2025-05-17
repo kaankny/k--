@@ -167,9 +167,17 @@ t_ast_node *Parser::parseTerm()
 {
 	t_ast_node *node = parseFactor();
 
-	while (m_currentToken->type == TOKEN_TYPE_STAR || m_currentToken->type == TOKEN_TYPE_SLASH)
+	while (m_currentToken->type == TOKEN_TYPE_STAR ||
+        m_currentToken->type == TOKEN_TYPE_SLASH ||
+        m_currentToken->type == TOKEN_TYPE_PERCENT)
 	{
-		char op = (m_currentToken->type == TOKEN_TYPE_STAR) ? '*' : '/';
+		char op;
+        if (m_currentToken->type == TOKEN_TYPE_STAR)
+            op = '*';
+        else if (m_currentToken->type == TOKEN_TYPE_SLASH)
+            op = '/';
+        else
+            op = '%';
 		advanceToken();
 		t_ast_node_expr *newNode = new t_ast_node_expr;
 		newNode->type = t_ast_node_type::AST_NODE_TYPE_EXPR;

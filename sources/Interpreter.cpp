@@ -160,7 +160,8 @@ void Interpreter::interpretReadStatement(t_ast_node_read *node)
 		Logger::getInstance().log(LogLevel::ERROR, "Variable '" + varName + "' is not defined");
 		exit(1);
 	}
-	std::cout << node->msg;
+	// TODO: Apply the same logic as in the write statement
+	//std::cout << node->msg;
 	std::string varType = value.valueType;
 	std::string input;
 	std::cin >> input;
@@ -369,7 +370,7 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 			}
             else if (literalNode->valueType == "string")
             {
-                return Value(literalNode->stringValue);
+				return Value(literalNode->stringValue);
             }
 			else if (literalNode->valueType == "bool")
 			{
@@ -381,24 +382,24 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 			}
             else
             {
-                Logger::getInstance().log(LogLevel::ERROR, "Unknown literal type");
+				Logger::getInstance().log(LogLevel::ERROR, "Unknown literal type");
                 exit(1);
             }
         }
         case t_ast_node_type::AST_NODE_TYPE_VARIABLE:
         {
-            t_ast_node_variable *varNode = static_cast<t_ast_node_variable *>(node);
+			t_ast_node_variable *varNode = static_cast<t_ast_node_variable *>(node);
             return  ScopeManager::getInstance().getVariable(varNode->varName);
         }
         case t_ast_node_type::AST_NODE_TYPE_EXPR:
         {
-            t_ast_node_expr *exprNode = static_cast<t_ast_node_expr *>(node);
+			t_ast_node_expr *exprNode = static_cast<t_ast_node_expr *>(node);
             Value leftValue = evaluateExpression(exprNode->left);
             Value rightValue = evaluateExpression(exprNode->right);
-
+			
             if (exprNode->op == '+')
             {
-                return leftValue + rightValue;
+				return leftValue + rightValue;
             }
 			else if (exprNode->op == '-')
 			{
@@ -411,6 +412,10 @@ Value Interpreter::evaluateExpression(t_ast_node *node)
 			else if (exprNode->op == '/')
 			{
 				return leftValue / rightValue;
+			}
+			else if (exprNode->op == '%')
+			{
+				return leftValue % rightValue;
 			}
 			else if (exprNode->op == '&') // for &&
 			{

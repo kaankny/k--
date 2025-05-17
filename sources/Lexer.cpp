@@ -236,7 +236,10 @@ bool Lexer::getNextToken()
 		case 'A' ... 'Z':
 			this->m_token.type = TOKEN_TYPE_IDENTIFIER;
 			this->m_token.identifier = "";
-			while (this->m_currentIndex < this->m_inputFileContent.size() && ((this->m_inputFileContent[this->m_currentIndex] >= 'a' && this->m_inputFileContent[this->m_currentIndex] <= 'z') || (this->m_inputFileContent[this->m_currentIndex] >= 'A' && this->m_inputFileContent[this->m_currentIndex] <= 'Z')))
+			while (this->m_currentIndex < this->m_inputFileContent.size() &&
+				((this->m_inputFileContent[this->m_currentIndex] >= 'a' && this->m_inputFileContent[this->m_currentIndex] <= 'z') ||
+				(this->m_inputFileContent[this->m_currentIndex] >= 'A' && this->m_inputFileContent[this->m_currentIndex] <= 'Z') ||
+				(this->m_inputFileContent[this->m_currentIndex] >= '0' && this->m_inputFileContent[this->m_currentIndex] <= '9')))
 			{
 				this->m_token.identifier += this->m_inputFileContent[this->m_currentIndex];
 				this->m_currentIndex++;
